@@ -87,23 +87,28 @@
     color: #111;
     font-weight: bold;
     transition: 0.2s;
+    text-transform: uppercase;
   }
   button:hover {
     background: #ffa733;
   }
-  .link-box {
-    margin-top: 20px;
+  .chatty-box {
+    margin-top: 15px;
     padding: 12px;
     border-radius: 10px;
-    background: rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    cursor: pointer;
-    color: #ffa733;
+    border: 2px solid #ff9800;
+    color: #ff9800;
     font-weight: bold;
+    text-align: center;
+    width: 100%;
+    max-width: 700px;
+    cursor: pointer;
+    transition: 0.2s;
+    text-transform: uppercase;
   }
-  .link-box:hover {
-    background: rgba(255, 165, 0, 0.2);
+  .chatty-box.active {
+    background: #ff9800;
+    color: #111;
   }
 </style>
 </head>
@@ -116,10 +121,11 @@
 <div class="grid" id="grid"></div>
 
 <div class="controls">
-  <button id="clearBtn">Clear</button>
+  <button id="clearBtn">CLEAR</button>
+  <button id="regexTestBtn">REGEX TESTEN</button>
 </div>
 
-<div class="link-box" id="regexLink">Regex auf regex101 testen</div>
+<div class="chatty-box" id="chattyToggle">CHATTY</div>
 
 <script>
 const regexMap = {
@@ -159,14 +165,17 @@ const grid = document.getElementById("grid");
 const regexDisplay = document.getElementById("regexDisplay");
 const wordDisplay = document.getElementById("wordDisplay");
 const clearBtn = document.getElementById("clearBtn");
-const regexLink = document.getElementById("regexLink");
+const regexTestBtn = document.getElementById("regexTestBtn");
+const chattyToggle = document.getElementById("chattyToggle");
 
 let currentWord = "";
 let currentRegex = "";
+let chattyMode = false;
 
 function updateDisplay() {
+  let prefix = chattyMode ? "config:any regi:" : "";
   wordDisplay.textContent = "Wort: " + currentWord;
-  regexDisplay.textContent = "Regex: " + `(?i)\\b${currentRegex}\\b`;
+  regexDisplay.textContent = "Regex: " + prefix + `(?i)\\b${currentRegex}\\b`;
 }
 
 // Boxen erstellen
@@ -227,11 +236,18 @@ clearBtn.onclick = () => {
   updateDisplay();
 };
 
-// regex101 Link
-regexLink.onclick = () => {
+// regex101 öffnen
+regexTestBtn.onclick = () => {
   const regexText = regexDisplay.textContent.replace("Regex: ", "");
   const url = "https://regex101.com/?regex=" + encodeURIComponent(regexText);
   window.open(url, "_blank");
+};
+
+// Chatty Toggle
+chattyToggle.onclick = () => {
+  chattyMode = !chattyMode;
+  chattyToggle.classList.toggle("active", chattyMode);
+  updateDisplay();
 };
 
 // Initial
