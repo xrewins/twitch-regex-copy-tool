@@ -201,7 +201,7 @@ let chattyMode = false;
 function updateDisplay() {
   let prefix = chattyMode ? "config:any regi:" : "";
   wordContent.textContent = currentWord;
-  regexContent.textContent = prefix + `(?i)(_|\\b)*${currentRegex}(_|\\b)*`;
+  regexContent.textContent = prefix + `(?i)(_|\\b)${currentRegex}(_|\\b)`;
 }
 
 // Boxen erstellen
@@ -280,3 +280,4 @@ updateDisplay();
 </script>
 </body>
 </html>
+
