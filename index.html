@@ -1,62 +1,86 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Twitch Regex Tool</title>
 <style>
+  :root {
+    --orange: #ff9800;
+    --twitch: #9146FF;
+    --fossa: #3399ff;
+    --bg: #0d0d0d;
+  }
+
+  html, body { margin:0; padding:0; height:100%; }
   body {
-    font-family: sans-serif;
+    font-family: Inter, system-ui, sans-serif;
+    background: var(--bg);
+    color: #f5f5f5;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 20px;
-    background: #0d0d0d;
-    color: #f5f5f5;
+    min-height: 100vh;
   }
+
   h1 {
-    margin-bottom: 20px;
+    margin: 20px 0 30px 0;
     color: #fff;
+    font-size: 2.2rem;
+    text-align: center;
   }
+
+  .app {
+    width: 100%;
+    max-width: 700px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+    padding: 0 20px;
+    box-sizing: border-box;
+  }
+
   .display-box {
     font-family: monospace;
-    margin-bottom: 10px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 8px;
     background: rgba(255, 255, 255, 0.08);
     padding: 10px;
     border-radius: 10px;
     width: 100%;
-    max-width: 700px;
     cursor: pointer;
-    display: flex;
-    gap: 8px;
   }
+
   .label {
-    flex: 0 0 auto;
-    color: #ffa733;
+    flex: 0 0 70px;
+    color: var(--orange);
     font-weight: bold;
+    font-size: 1.1rem;
   }
+
   .content {
-    flex: 1 1 auto;
+    flex: 1;
     white-space: pre-wrap;
     word-wrap: break-word;
+    font-size: 1.1rem;
   }
-  .display-box:hover {
-    background: rgba(255, 165, 0, 0.2);
-  }
+
   .grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
     gap: 12px;
-    max-width: 700px;
     width: 100%;
     margin: 25px 0;
   }
+
   .box {
     padding: 10px;
     text-align: center;
     border-radius: 16px;
     background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(12px);
     border: 1px solid rgba(255, 255, 255, 0.2);
     color: #fff;
     font-weight: bold;
@@ -70,6 +94,7 @@
     background: rgba(255, 165, 0, 0.3);
     transform: scale(1.05);
   }
+
   .toggle {
     background: rgba(255,255,255,0.2);
     border: none;
@@ -80,204 +105,238 @@
     margin-left: 5px;
     color: #fff;
   }
-  .toggle.active {
-    background: rgba(255, 165, 0, 0.8);
-  }
+  .toggle.active { background: rgba(255, 165, 0, 0.8); }
+
   .controls {
     margin-top: 15px;
     display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+
+  .left-buttons {
+    display: flex;
     gap: 10px;
   }
+
   button {
     padding: 10px 18px;
     border: none;
     border-radius: 12px;
     cursor: pointer;
-    background: #ff9800;
+    background: var(--orange);
     color: #111;
     font-weight: bold;
     transition: 0.2s;
     text-transform: uppercase;
   }
-  button:hover {
-    background: #ffa733;
-  }
-  .chatty-box {
+  button:hover { background: #ffa733; }
+
+  .chatty-box,
+  .fossabot-box {
     margin-top: 15px;
     padding: 12px;
     border-radius: 10px;
-    border: 2px solid #ff9800;
-    color: #ff9800;
     font-weight: bold;
     text-align: center;
     width: 100%;
     max-width: 700px;
     cursor: pointer;
-    transition: 0.2s;
+    transition: 0.25s;
     text-transform: uppercase;
+    position: relative;
+  }
+  .chatty-box {
+    border: 2px solid var(--twitch);
+    color: var(--twitch);
   }
   .chatty-box.active {
-    background: #ff9800;
+    background: var(--twitch);
     color: #111;
   }
+
+  .fossabot-box {
+    border: 2px solid var(--fossa);
+    color: var(--fossa);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .fossabot-box.active {
+    background: var(--fossa);
+    color: #111;
+  }
+
+  .fossabot-box .main-label {
+    font-size: 1.2rem;
+    transition: transform 0.25s ease, font-size 0.25s ease;
+  }
+  .fossabot-box.active .main-label {
+    font-size: 1rem;
+    transform: scale(0.95);
+  }
+  .fossabot-box .mode-label {
+    font-size: 0.75rem;
+    margin-top: 2px;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+  }
+  .fossabot-box.active .mode-label { opacity: 0.85; }
+
+  .arrow {
+    position: absolute;
+    right: 15px;
+    font-size: 1.5rem;
+    transition: transform 0.2s ease;
+  }
+  .arrow.down { transform: rotate(90deg); }
+
+  .dropdown {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: all 0.3s ease;
+    background: rgba(51, 153, 255, 0.1);
+    border-radius: 8px;
+    margin-top: 5px;
+    width: 100%;
+    max-width: 700px;
+  }
+  .dropdown.open {
+    max-height: 200px;
+    opacity: 1;
+    padding: 8px 0;
+  }
+  .dropdown div {
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    color: #ddd;
+  }
+  .dropdown div:hover {
+    background: rgba(51, 153, 255, 0.2);
+  }
+
   .watermark {
     position: fixed;
     bottom: 10px;
-    left: 10px;
-    font-size: 0.85rem;
-    color: rgba(200, 200, 200, 0.5);
+    text-align: center;
+    width: 100%;
+    font-size: 0.9rem;
+    color: rgba(200,200,200,0.5);
     font-family: monospace;
   }
 </style>
 </head>
 <body>
-<h1>Twitch Regex Tool</h1>
+  <h1>Twitch Regex Tool</h1>
+  <div class="app">
+    <div class="display-box" id="wordDisplay">
+      <span class="label">Word:</span>
+      <span class="content" id="wordContent"></span>
+    </div>
+    <div class="display-box" id="regexDisplay" title="Klicken zum Kopieren">
+      <span class="label">Regex:</span>
+      <span class="content" id="regexContent"></span>
+    </div>
 
-<div class="display-box" id="wordDisplay">
-  <span class="label">Wort:</span>
-  <span class="content" id="wordContent"></span>
-</div>
-<div class="display-box" id="regexDisplay" title="Klicken zum Kopieren">
-  <span class="label">Regex:</span>
-  <span class="content" id="regexContent"></span>
-</div>
+    <div class="grid" id="grid"></div>
 
-<div class="grid" id="grid"></div>
+    <div class="controls">
+      <div class="left-buttons">
+        <button id="clearBtn">CLEAR ALL</button>
+        <button id="clearLastBtn">CLEAR LAST</button>
+      </div>
+      <button id="regexTestBtn">TEST REGEX</button>
+    </div>
 
-<div class="controls">
-  <button id="clearBtn">CLEAR</button>
-  <button id="regexTestBtn">REGEX TESTEN</button>
-</div>
+    <div class="chatty-box" id="chattyToggle">CHATTY</div>
+    <div class="fossabot-box" id="fossabotToggle">
+      <div class="main-label">FOSSABOT</div>
+      <div class="mode-label" id="fossabotModeLabel"></div>
+      <span class="arrow">›</span>
+    </div>
+    <div class="dropdown" id="fossabotMenu">
+      <div data-mode="standard">Standard</div>
+      <div data-mode="keyword">Keyword</div>
+      <div data-mode="blocked">Blocked Terms</div>
+      <div data-mode="negative">Negativ</div>
+    </div>
+  </div>
 
-<div class="chatty-box" id="chattyToggle">CHATTY</div>
-
-<div class="watermark">by rewins</div>
+  <div class="watermark">© 2025 – rewins / All Rights Reserved</div>
 
 <script>
 const regexMap = {
-  a: "[aA@4äÄàáâãåĀ#*]",
-  b: "[bB8ßẞ#*]",
-  c: "[cC(ķčćç¢©#*]",
-  d: "[dDÐďđ#*]",
-  e: "[eE3€èéêëě#*]",
-  f: "[fFƒ#*]",
-  g: "[gG6ɢ9#*]",
-  h: "[hH#*]",
-  i: "[iI1!|ìíîïįī#*]",
-  j: "[jJ#*]",
-  k: "[kKκ#*]",
-  l: "[lL1!|ł#*]",
-  m: "[mM#*]",
-  n: "[nNñńňņ#*]",
-  o: "[oO0öÖóòôõø¤°#*]",
-  p: "[pPρ¶þ#*]",
-  q: "[qQ9#*]",
-  r: "[rRʁЯ®#*]",
-  s: "[sS5$šśş§ßẞ#*]",
-  t: "[tT7†ŧ#*]",
-  u: "[uUúùûüÜūµ#*]",
-  v: "[vV\\/#!*]",
-  w: "[wWvvωŴ#*]",
-  x: "[xX%×χ#*]",
-  y: "[yY¥ýÿ#*]",
-  z: "[zZ2žźżʒ#*]",
-  ä: "[äA@4aA#*]",
-  ö: "[öÖoO#*]",
-  ü: "[üÜuU#*]",
-  ß: "[ßẞ5$sS#*]"
+  a:"[aA@4äÄàáâãåĀ#*]",b:"[bB8ßẞ#*]",c:"[cC(ķčćç¢©#*]",
+  d:"[dDÐďđ#*]",e:"[eE3€èéêëě#*]",f:"[fFƒ#*]",
+  g:"[gG6ɢ9#*]",h:"[hH#*]",i:"[iI1!|ìíîïįī#*]",
+  j:"[jJ#*]",k:"[kKκ#*]",l:"[lL1!|ł#*]",
+  m:"[mM#*]",n:"[nNñńňņ#*]",o:"[oO0öÖóòôõø¤°#*]",
+  p:"[pPρ¶þ#*]",q:"[qQ9#*]",r:"[rRʁЯ®#*]",
+  s:"[sS5$šśş§ßẞ#*]",t:"[tT7†ŧ#*]",u:"[uUúùûüÜūµ#*]",
+  v:"[vV\\/#!*]",w:"[wWvvωŴ#*]",x:"[xX%×χ#*]",
+  y:"[yY¥ýÿ#*]",z:"[zZ2žźżʒ#*]",
+  ä:"[äA@4aA#*]",ö:"[öÖoO#*]",ü:"[üÜuU#*]",ß:"[ßẞ5$sS#*]"
 };
 
-const grid = document.getElementById("grid");
-const wordContent = document.getElementById("wordContent");
-const regexContent = document.getElementById("regexContent");
-const clearBtn = document.getElementById("clearBtn");
-const regexTestBtn = document.getElementById("regexTestBtn");
-const chattyToggle = document.getElementById("chattyToggle");
+const wordContent=document.getElementById("wordContent");
+const regexContent=document.getElementById("regexContent");
+const regexDisplay=document.getElementById("regexDisplay");
+const clearBtn=document.getElementById("clearBtn");
+const clearLastBtn=document.getElementById("clearLastBtn");
+const regexTestBtn=document.getElementById("regexTestBtn");
+const chattyToggle=document.getElementById("chattyToggle");
+const fossabotToggle=document.getElementById("fossabotToggle");
+const fossabotMenu=document.getElementById("fossabotMenu");
+const fossabotModeLabel=document.getElementById("fossabotModeLabel");
+const arrow=fossabotToggle.querySelector(".arrow");
 
-let currentWord = "";
-let currentRegex = "";
-let chattyMode = false;
+let currentWord="";let currentRegex="";let chattyMode=false;let fossabotMode="standard";
+let regexParts=[];
 
-function updateDisplay() {
-  let prefix = chattyMode ? "config:any regi:" : "";
-  wordContent.textContent = currentWord;
-  regexContent.textContent = prefix + `(?i)(_|\\b)${currentRegex}(_|\\b)`;
+function updateDisplay(){
+  let prefix="";
+  if(chattyMode)prefix="config:any regi:";
+  if(fossabotMode==="keyword"||fossabotMode==="blocked")prefix="regex:"+prefix;
+  if(fossabotMode==="negative")prefix="regex:negative:"+prefix;
+  wordContent.textContent=currentWord;
+  regexContent.textContent=prefix+`(?i)(_|\\b)${currentRegex}(_|\\b)`;
+  if(fossabotMode==="standard"){fossabotToggle.classList.remove("active");fossabotModeLabel.textContent="";}
+  else{fossabotToggle.classList.add("active");fossabotModeLabel.textContent=fossabotMode;}
 }
 
-// Boxen erstellen
-Object.keys(regexMap).forEach(letter => {
-  const container = document.createElement("div");
-  container.className = "box";
-
-  const span = document.createElement("span");
-  span.textContent = letter;
-
-  const toggleBtn = document.createElement("button");
-  toggleBtn.textContent = "?";
-  toggleBtn.className = "toggle";
-  toggleBtn.dataset.optional = "false";
-
-  container.appendChild(span);
-  container.appendChild(toggleBtn);
-
-  container.onclick = (e) => {
-    if (e.target === toggleBtn) return;
-    currentWord += letter;
-    const isOptional = toggleBtn.dataset.optional === "true";
-    currentRegex += isOptional
-      ? `(${regexMap[letter]}*?)`
-      : `${regexMap[letter]}+[\\W_#*]*`;
+const grid=document.getElementById("grid");
+Object.keys(regexMap).forEach(letter=>{
+  const container=document.createElement("div");
+  container.className="box";
+  const span=document.createElement("span");span.textContent=letter;
+  const toggleBtn=document.createElement("button");
+  toggleBtn.textContent="?";toggleBtn.className="toggle";toggleBtn.dataset.optional="false";
+  container.appendChild(span);container.appendChild(toggleBtn);
+  container.onclick=(e)=>{if(e.target===toggleBtn)return;
+    currentWord+=letter;
+    const isOptional=toggleBtn.dataset.optional==="true";
+    const regexPiece=isOptional?`(${regexMap[letter]}*?)`:`${regexMap[letter]}+[\\W_#*]*`;
+    currentRegex+=regexPiece;
+    regexParts.push({letter,regexPiece});
     updateDisplay();
-    if (isOptional) {
-      toggleBtn.dataset.optional = "false";
-      toggleBtn.classList.remove("active");
-    }
+    if(isOptional){toggleBtn.dataset.optional="false";toggleBtn.classList.remove("active");}
   };
-
-  toggleBtn.onclick = (e) => {
-    e.stopPropagation();
-    toggleBtn.dataset.optional = toggleBtn.dataset.optional === "true" ? "false" : "true";
-    toggleBtn.classList.toggle("active");
-  };
-
+  toggleBtn.onclick=(e)=>{e.stopPropagation();toggleBtn.dataset.optional=toggleBtn.dataset.optional==="true"?"false":"true";toggleBtn.classList.toggle("active");};
   grid.appendChild(container);
 });
 
-// Regex klickbar = Kopieren
-document.getElementById("regexDisplay").onclick = async () => {
-  const regexText = regexContent.textContent;
-  await navigator.clipboard.writeText(regexText);
-  regexContent.textContent = "Kopiert!";
-  setTimeout(updateDisplay, 1200);
-};
-
-// Clear
-clearBtn.onclick = () => {
-  currentWord = "";
-  currentRegex = "";
-  updateDisplay();
-};
-
-// regex101 öffnen (ohne config:any regi:)
-regexTestBtn.onclick = () => {
-  let regexText = regexContent.textContent;
-  if (regexText.startsWith("config:any regi:")) {
-    regexText = regexText.replace("config:any regi:", "");
-  }
-  const url = "https://regex101.com/?regex=" + encodeURIComponent(regexText);
-  window.open(url, "_blank");
-};
-
-// Chatty Toggle
-chattyToggle.onclick = () => {
-  chattyMode = !chattyMode;
-  chattyToggle.classList.toggle("active", chattyMode);
-  updateDisplay();
-};
-
-// Initial
+regexDisplay.onclick=async()=>{const regexText=regexContent.textContent;await navigator.clipboard.writeText(regexText);regexContent.textContent="Kopiert!";setTimeout(updateDisplay,1200);};
+clearBtn.onclick=()=>{currentWord="";currentRegex="";regexParts=[];updateDisplay();};
+clearLastBtn.onclick=()=>{if(regexParts.length>0){regexParts.pop();currentWord=currentWord.slice(0,-1);currentRegex=regexParts.map(p=>p.regexPiece).join("");updateDisplay();}};
+regexTestBtn.onclick=()=>{let regexText=regexContent.textContent;regexText=regexText.replace(/^config:any regi:/,"");const url="https://regex101.com/?regex="+encodeURIComponent(regexText);window.open(url,"_blank");};
+chattyToggle.onclick=()=>{chattyMode=!chattyMode;if(chattyMode)fossabotMode="standard";chattyToggle.classList.toggle("active",chattyMode);updateDisplay();};
+fossabotToggle.onclick=()=>{arrow.classList.toggle("down");fossabotMenu.classList.toggle("open");};
+fossabotMenu.querySelectorAll("div").forEach(item=>{item.onclick=()=>{fossabotMode=item.dataset.mode;chattyMode=false;chattyToggle.classList.remove("active");fossabotMenu.classList.remove("open");arrow.classList.remove("down");updateDisplay();};});
 updateDisplay();
 </script>
 </body>
 </html>
-
