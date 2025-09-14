@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Regex Buchstaben Tool</title>
+<title>Twitch Regex Tool</title>
 <style>
   body {
     font-family: sans-serif;
@@ -11,39 +11,78 @@
     flex-direction: column;
     align-items: center;
     padding: 20px;
-    background: #f9f9f9;
+    background: #0d0d0d;
+    color: #f5f5f5;
   }
   h1 {
     margin-bottom: 20px;
+    color: #fff;
   }
   .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-    gap: 10px;
-    max-width: 600px;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 12px;
+    max-width: 700px;
     width: 100%;
+    margin-bottom: 25px;
   }
   .box {
-    border: 1px solid #ccc;
     padding: 15px;
     text-align: center;
     cursor: pointer;
-    border-radius: 8px;
-    background: #fff;
-    transition: 0.2s;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    transition: all 0.2s ease;
     user-select: none;
   }
   .box:hover {
-    background: #e0f7fa;
+    background: rgba(255, 255, 255, 0.15);
+    transform: scale(1.05);
   }
-  .copied {
-    background: #c8e6c9 !important;
+  .output-bar {
+    margin-top: 20px;
+    padding: 15px;
+    width: 100%;
+    max-width: 700px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    font-family: monospace;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+  .controls {
+    margin-top: 15px;
+    display: flex;
+    gap: 10px;
+  }
+  button {
+    padding: 10px 18px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    background: #1f6feb;
+    color: white;
+    font-weight: bold;
+    transition: 0.2s;
+  }
+  button:hover {
+    background: #388bfd;
   }
 </style>
 </head>
 <body>
-<h1>Regex Buchstaben Tool</h1>
+<h1>Twitch Regex Tool</h1>
 <div class="grid" id="grid"></div>
+
+<div class="output-bar" id="output">(?i)\b\b</div>
+<div class="controls">
+  <button id="copyBtn">Copy Regex</button>
+  <button id="clearBtn">Clear</button>
+</div>
 
 <script>
 const regexMap = {
@@ -76,19 +115,40 @@ const regexMap = {
 };
 
 const grid = document.getElementById("grid");
+const output = document.getElementById("output");
+const copyBtn = document.getElementById("copyBtn");
+const clearBtn = document.getElementById("clearBtn");
+
+let current = "";
+
+function updateOutput() {
+  output.textContent = `(?i)\\b${current}\\b`;
+}
 
 Object.keys(regexMap).forEach(letter => {
   const box = document.createElement("div");
   box.className = "box";
   box.textContent = letter;
-  box.title = "Klicke, um Regex-Code zu kopieren";
-  box.onclick = async () => {
-    await navigator.clipboard.writeText(regexMap[letter]);
-    box.classList.add("copied");
-    setTimeout(() => box.classList.remove("copied"), 500);
+  box.onclick = () => {
+    current += regexMap[letter];
+    updateOutput();
   };
   grid.appendChild(box);
 });
+
+copyBtn.onclick = async () => {
+  await navigator.clipboard.writeText(output.textContent);
+  copyBtn.textContent = "Copied!";
+  setTimeout(() => copyBtn.textContent = "Copy Regex", 1200);
+};
+
+clearBtn.onclick = () => {
+  current = "";
+  updateOutput();
+};
+
+// initial output
+updateOutput();
 </script>
 </body>
 </html>
