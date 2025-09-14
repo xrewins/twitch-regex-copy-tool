@@ -116,7 +116,7 @@
 <h1>Twitch Regex Tool</h1>
 
 <div class="display-box" id="wordDisplay">Wort: </div>
-<div class="display-box" id="regexDisplay" title="Klicken zum Kopieren">Regex: (?i)(_\b)(_\b)</div>
+<div class="display-box" id="regexDisplay" title="Klicken zum Kopieren">Regex: (?i)(_|\b)(_|\b)</div>
 
 <div class="grid" id="grid"></div>
 
@@ -175,7 +175,7 @@ let chattyMode = false;
 function updateDisplay() {
   let prefix = chattyMode ? "config:any regi:" : "";
   wordDisplay.textContent = "Wort: " + currentWord;
-  regexDisplay.textContent = "Regex: " + prefix + `(?i)(_\\b)${currentRegex}(_\\b)`;
+  regexDisplay.textContent = "Regex: " + prefix + `(?i)(_|\\b)${currentRegex}(_|\\b)`;
 }
 
 // Boxen erstellen
@@ -258,5 +258,6 @@ updateDisplay();
 </script>
 </body>
 </html>
+
 
 
