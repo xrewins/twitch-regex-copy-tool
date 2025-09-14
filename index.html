@@ -28,6 +28,10 @@
     max-width: 700px;
     white-space: pre-wrap;
     word-wrap: break-word;
+    cursor: pointer;
+  }
+  .display-box:hover {
+    background: rgba(255, 165, 0, 0.2);
   }
   .grid {
     display: grid;
@@ -93,12 +97,11 @@
 <h1>Twitch Regex Tool</h1>
 
 <div class="display-box" id="wordDisplay">Wort: </div>
-<div class="display-box" id="regexDisplay">Regex: (?i)\b\b</div>
+<div class="display-box" id="regexDisplay" title="Klicken zum Kopieren">Regex: (?i)\b\b</div>
 
 <div class="grid" id="grid"></div>
 
 <div class="controls">
-  <button id="copyBtn">Copy Regex</button>
   <button id="clearBtn">Clear</button>
 </div>
 
@@ -129,13 +132,16 @@ const regexMap = {
   w: "[wWvvωŴ#*]",
   x: "[xX%×χ#*]",
   y: "[yY¥ýÿ#*]",
-  z: "[zZ2žźżʒ#*]"
+  z: "[zZ2žźżʒ#*]",
+  ä: "[äA@4aA#*]",
+  ö: "[öÖoO#*]",
+  ü: "[üÜuU#*]",
+  ß: "[ßẞ5$sS#*]"
 };
 
 const grid = document.getElementById("grid");
 const regexDisplay = document.getElementById("regexDisplay");
 const wordDisplay = document.getElementById("wordDisplay");
-const copyBtn = document.getElementById("copyBtn");
 const clearBtn = document.getElementById("clearBtn");
 
 let currentWord = "";
@@ -188,10 +194,12 @@ Object.keys(regexMap).forEach(letter => {
   grid.appendChild(container);
 });
 
-copyBtn.onclick = async () => {
-  await navigator.clipboard.writeText(regexDisplay.textContent.replace("Regex: ", ""));
-  copyBtn.textContent = "Copied!";
-  setTimeout(() => copyBtn.textContent = "Copy Regex", 1200);
+// Regex-Zeile klickbar machen → Kopieren
+regexDisplay.onclick = async () => {
+  const regexText = regexDisplay.textContent.replace("Regex: ", "");
+  await navigator.clipboard.writeText(regexText);
+  regexDisplay.textContent = "Regex: Kopiert!";
+  setTimeout(updateDisplay, 1200);
 };
 
 clearBtn.onclick = () => {
