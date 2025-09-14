@@ -18,14 +18,9 @@
     margin-bottom: 20px;
     color: #fff;
   }
-  .word-display {
-    font-size: 1.4rem;
-    margin-bottom: 8px;
-    font-weight: bold;
-  }
-  .regex-display {
+  .display-box {
     font-family: monospace;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     background: rgba(255, 255, 255, 0.08);
     padding: 10px;
     border-radius: 10px;
@@ -40,7 +35,7 @@
     gap: 12px;
     max-width: 700px;
     width: 100%;
-    margin-bottom: 25px;
+    margin: 25px 0;
   }
   .box {
     padding: 10px;
@@ -97,8 +92,8 @@
 <body>
 <h1>Twitch Regex Tool</h1>
 
-<div class="word-display" id="wordDisplay">Wort: </div>
-<div class="regex-display" id="regexDisplay">(?i)\b\b</div>
+<div class="display-box" id="wordDisplay">Wort: </div>
+<div class="display-box" id="regexDisplay">Regex: (?i)\b\b</div>
 
 <div class="grid" id="grid"></div>
 
@@ -148,7 +143,7 @@ let currentRegex = "";
 
 function updateDisplay() {
   wordDisplay.textContent = "Wort: " + currentWord;
-  regexDisplay.textContent = `(?i)\\b${currentRegex}\\b`;
+  regexDisplay.textContent = "Regex: " + `(?i)\\b${currentRegex}\\b`;
 }
 
 Object.keys(regexMap).forEach(letter => {
@@ -166,7 +161,7 @@ Object.keys(regexMap).forEach(letter => {
   container.appendChild(span);
   container.appendChild(toggleBtn);
 
-  // Klick auf die Box (Buchstabe selbst)
+  // Klick auf die Box (fügt hinzu)
   container.onclick = (e) => {
     if (e.target === toggleBtn) return; // Toggle separat behandeln
     currentWord += letter;
@@ -175,6 +170,12 @@ Object.keys(regexMap).forEach(letter => {
       ? `${regexMap[letter]}?[\\W_#*]*`
       : `${regexMap[letter]}+[\\W_#*]*`;
     updateDisplay();
+
+    // nach Klick das ? zurücksetzen
+    if (isOptional) {
+      toggleBtn.dataset.optional = "false";
+      toggleBtn.classList.remove("active");
+    }
   };
 
   // Toggle ? optional
@@ -188,7 +189,7 @@ Object.keys(regexMap).forEach(letter => {
 });
 
 copyBtn.onclick = async () => {
-  await navigator.clipboard.writeText(regexDisplay.textContent);
+  await navigator.clipboard.writeText(regexDisplay.textContent.replace("Regex: ", ""));
   copyBtn.textContent = "Copied!";
   setTimeout(() => copyBtn.textContent = "Copy Regex", 1200);
 };
