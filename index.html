@@ -91,6 +91,20 @@
   button:hover {
     background: #ffa733;
   }
+  .link-box {
+    margin-top: 20px;
+    padding: 12px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    cursor: pointer;
+    color: #ffa733;
+    font-weight: bold;
+  }
+  .link-box:hover {
+    background: rgba(255, 165, 0, 0.2);
+  }
 </style>
 </head>
 <body>
@@ -104,6 +118,8 @@
 <div class="controls">
   <button id="clearBtn">Clear</button>
 </div>
+
+<div class="link-box" id="regexLink">Regex auf regex101 testen</div>
 
 <script>
 const regexMap = {
@@ -143,6 +159,7 @@ const grid = document.getElementById("grid");
 const regexDisplay = document.getElementById("regexDisplay");
 const wordDisplay = document.getElementById("wordDisplay");
 const clearBtn = document.getElementById("clearBtn");
+const regexLink = document.getElementById("regexLink");
 
 let currentWord = "";
 let currentRegex = "";
@@ -152,6 +169,7 @@ function updateDisplay() {
   regexDisplay.textContent = "Regex: " + `(?i)\\b${currentRegex}\\b`;
 }
 
+// Boxen erstellen
 Object.keys(regexMap).forEach(letter => {
   const container = document.createElement("div");
   container.className = "box";
@@ -167,24 +185,24 @@ Object.keys(regexMap).forEach(letter => {
   container.appendChild(span);
   container.appendChild(toggleBtn);
 
-  // Klick auf die Box (fügt hinzu)
+  // Klick auf Box = hinzufügen
   container.onclick = (e) => {
-    if (e.target === toggleBtn) return; // Toggle separat behandeln
+    if (e.target === toggleBtn) return; // Toggle extra
     currentWord += letter;
     const isOptional = toggleBtn.dataset.optional === "true";
     currentRegex += isOptional
-      ? `${regexMap[letter]}?[\\W_#*]*`
+      ? `(${regexMap[letter]}*?)`
       : `${regexMap[letter]}+[\\W_#*]*`;
     updateDisplay();
 
-    // nach Klick das ? zurücksetzen
+    // ? zurücksetzen
     if (isOptional) {
       toggleBtn.dataset.optional = "false";
       toggleBtn.classList.remove("active");
     }
   };
 
-  // Toggle ? optional
+  // Toggle ?
   toggleBtn.onclick = (e) => {
     e.stopPropagation();
     toggleBtn.dataset.optional = toggleBtn.dataset.optional === "true" ? "false" : "true";
@@ -194,7 +212,7 @@ Object.keys(regexMap).forEach(letter => {
   grid.appendChild(container);
 });
 
-// Regex-Zeile klickbar machen → Kopieren
+// Regex-Zeile klickbar = Kopieren
 regexDisplay.onclick = async () => {
   const regexText = regexDisplay.textContent.replace("Regex: ", "");
   await navigator.clipboard.writeText(regexText);
@@ -202,13 +220,21 @@ regexDisplay.onclick = async () => {
   setTimeout(updateDisplay, 1200);
 };
 
+// Clear
 clearBtn.onclick = () => {
   currentWord = "";
   currentRegex = "";
   updateDisplay();
 };
 
-// initial
+// regex101 Link
+regexLink.onclick = () => {
+  const regexText = regexDisplay.textContent.replace("Regex: ", "");
+  const url = "https://regex101.com/?regex=" + encodeURIComponent(regexText);
+  window.open(url, "_blank");
+};
+
+// Initial
 updateDisplay();
 </script>
 </body>
