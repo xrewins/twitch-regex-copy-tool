@@ -175,7 +175,7 @@ let chattyMode = false;
 function updateDisplay() {
   let prefix = chattyMode ? "config:any regi:" : "";
   wordDisplay.textContent = "Wort: " + currentWord;
-  regexDisplay.textContent = "Regex: " + prefix + `(?i)(_|\\\\b)*${currentRegex}(_|\\\\b)`;
+  regexDisplay.textContent = "Regex: " + prefix + `(?i)(_\\b)${currentRegex}(_\\b)`;
 }
 
 // Boxen erstellen
@@ -258,4 +258,5 @@ updateDisplay();
 </script>
 </body>
 </html>
+
 
