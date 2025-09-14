@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Regex Buchstaben Tool</title>
+<style>
+  body {
+    font-family: sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    background: #f9f9f9;
+  }
+  h1 {
+    margin-bottom: 20px;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 10px;
+    max-width: 600px;
+    width: 100%;
+  }
+  .box {
+    border: 1px solid #ccc;
+    padding: 15px;
+    text-align: center;
+    cursor: pointer;
+    border-radius: 8px;
+    background: #fff;
+    transition: 0.2s;
+    user-select: none;
+  }
+  .box:hover {
+    background: #e0f7fa;
+  }
+  .copied {
+    background: #c8e6c9 !important;
+  }
+</style>
+</head>
+<body>
+<h1>Regex Buchstaben Tool</h1>
+<div class="grid" id="grid"></div>
+
+<script>
+const regexMap = {
+  a: "[aA@4äÄàáâãåĀ#*]+[\\W_#*]*",
+  b: "[bB8ßẞ#*]+[\\W_#*]*",
+  c: "[cC(ķčćç¢©#*]+[\\W_#*]*",
+  d: "[dDÐďđ#*]+[\\W_#*]*",
+  e: "[eE3€èéêëě#*]+[\\W_#*]*",
+  f: "[fFƒ#*]+[\\W_#*]*",
+  g: "[gG6ɢ9#*]+[\\W_#*]*",
+  h: "[hH#*]+[\\W_#*]*",
+  i: "[iI1!|ìíîïįī#*]+[\\W_#*]*",
+  j: "[jJ#*]+[\\W_#*]*",
+  k: "[kKκ#*]+[\\W_#*]*",
+  l: "[lL1!|ł#*]+[\\W_#*]*",
+  m: "[mM#*]+[\\W_#*]*",
+  n: "[nNñńňņ#*]+[\\W_#*]*",
+  o: "[oO0öÖóòôõø¤°#*]+[\\W_#*]*",
+  p: "[pPρ¶þ#*]+[\\W_#*]*",
+  q: "[qQ9#*]+[\\W_#*]*",
+  r: "[rRʁЯ®#*]+[\\W_#*]*",
+  s: "[sS5$šśş§ßẞ#*]+[\\W_#*]*",
+  t: "[tT7†ŧ#*]+[\\W_#*]*",
+  u: "[uUúùûüÜūµ#*]+[\\W_#*]*",
+  v: "[vV\\/#!*]+[\\W_#*]*",
+  w: "[wWvvωŴ#*]+[\\W_#*]*",
+  x: "[xX%×χ#*]+[\\W_#*]*",
+  y: "[yY¥ýÿ#*]+[\\W_#*]*",
+  z: "[zZ2žźżʒ#*]+[\\W_#*]*"
+};
+
+const grid = document.getElementById("grid");
+
+Object.keys(regexMap).forEach(letter => {
+  const box = document.createElement("div");
+  box.className = "box";
+  box.textContent = letter;
+  box.title = "Klicke, um Regex-Code zu kopieren";
+  box.onclick = async () => {
+    await navigator.clipboard.writeText(regexMap[letter]);
+    box.classList.add("copied");
+    setTimeout(() => box.classList.remove("copied"), 500);
+  };
+  grid.appendChild(box);
+});
+</script>
+</body>
+</html>
