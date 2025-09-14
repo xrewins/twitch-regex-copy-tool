@@ -18,28 +18,55 @@
     margin-bottom: 20px;
     color: #fff;
   }
+  .word-display {
+    font-size: 1.4rem;
+    margin-bottom: 8px;
+    font-weight: bold;
+  }
+  .regex-display {
+    font-family: monospace;
+    margin-bottom: 20px;
+    background: rgba(255, 255, 255, 0.08);
+    padding: 10px;
+    border-radius: 10px;
+    width: 100%;
+    max-width: 700px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
   .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
     gap: 12px;
     max-width: 700px;
     width: 100%;
     margin-bottom: 25px;
   }
   .box {
-    padding: 15px;
+    padding: 10px;
     text-align: center;
+    border-radius: 12px;
+    background: orange;
+    color: #111;
+    font-weight: bold;
     cursor: pointer;
-    border-radius: 16px;
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.15);
     transition: all 0.2s ease;
-    user-select: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
   .box:hover {
-    background: rgba(255, 255, 255, 0.15);
+    background: #ff9800;
     transform: scale(1.05);
+  }
+  .toggle {
+    background: rgba(255,255,255,0.3);
+    border: none;
+    border-radius: 6px;
+    padding: 2px 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    margin-left: 5px;
   }
   .output-bar {
     margin-top: 20px;
@@ -76,9 +103,12 @@
 </head>
 <body>
 <h1>Twitch Regex Tool</h1>
+
+<div class="word-display" id="wordDisplay">Wort: </div>
+<div class="regex-display" id="regexDisplay">(?i)\b\b</div>
+
 <div class="grid" id="grid"></div>
 
-<div class="output-bar" id="output">(?i)\b\b</div>
 <div class="controls">
   <button id="copyBtn">Copy Regex</button>
   <button id="clearBtn">Clear</button>
@@ -86,69 +116,97 @@
 
 <script>
 const regexMap = {
-  a: "[aA@4äÄàáâãåĀ#*]+[\\W_#*]*",
-  b: "[bB8ßẞ#*]+[\\W_#*]*",
-  c: "[cC(ķčćç¢©#*]+[\\W_#*]*",
-  d: "[dDÐďđ#*]+[\\W_#*]*",
-  e: "[eE3€èéêëě#*]+[\\W_#*]*",
-  f: "[fFƒ#*]+[\\W_#*]*",
-  g: "[gG6ɢ9#*]+[\\W_#*]*",
-  h: "[hH#*]+[\\W_#*]*",
-  i: "[iI1!|ìíîïįī#*]+[\\W_#*]*",
-  j: "[jJ#*]+[\\W_#*]*",
-  k: "[kKκ#*]+[\\W_#*]*",
-  l: "[lL1!|ł#*]+[\\W_#*]*",
-  m: "[mM#*]+[\\W_#*]*",
-  n: "[nNñńňņ#*]+[\\W_#*]*",
-  o: "[oO0öÖóòôõø¤°#*]+[\\W_#*]*",
-  p: "[pPρ¶þ#*]+[\\W_#*]*",
-  q: "[qQ9#*]+[\\W_#*]*",
-  r: "[rRʁЯ®#*]+[\\W_#*]*",
-  s: "[sS5$šśş§ßẞ#*]+[\\W_#*]*",
-  t: "[tT7†ŧ#*]+[\\W_#*]*",
-  u: "[uUúùûüÜūµ#*]+[\\W_#*]*",
-  v: "[vV\\/#!*]+[\\W_#*]*",
-  w: "[wWvvωŴ#*]+[\\W_#*]*",
-  x: "[xX%×χ#*]+[\\W_#*]*",
-  y: "[yY¥ýÿ#*]+[\\W_#*]*",
-  z: "[zZ2žźżʒ#*]+[\\W_#*]*"
+  a: "[aA@4äÄàáâãåĀ#*]",
+  b: "[bB8ßẞ#*]",
+  c: "[cC(ķčćç¢©#*]",
+  d: "[dDÐďđ#*]",
+  e: "[eE3€èéêëě#*]",
+  f: "[fFƒ#*]",
+  g: "[gG6ɢ9#*]",
+  h: "[hH#*]",
+  i: "[iI1!|ìíîïįī#*]",
+  j: "[jJ#*]",
+  k: "[kKκ#*]",
+  l: "[lL1!|ł#*]",
+  m: "[mM#*]",
+  n: "[nNñńňņ#*]",
+  o: "[oO0öÖóòôõø¤°#*]",
+  p: "[pPρ¶þ#*]",
+  q: "[qQ9#*]",
+  r: "[rRʁЯ®#*]",
+  s: "[sS5$šśş§ßẞ#*]",
+  t: "[tT7†ŧ#*]",
+  u: "[uUúùûüÜūµ#*]",
+  v: "[vV\\/#!*]",
+  w: "[wWvvωŴ#*]",
+  x: "[xX%×χ#*]",
+  y: "[yY¥ýÿ#*]",
+  z: "[zZ2žźżʒ#*]"
 };
 
 const grid = document.getElementById("grid");
-const output = document.getElementById("output");
+const regexDisplay = document.getElementById("regexDisplay");
+const wordDisplay = document.getElementById("wordDisplay");
 const copyBtn = document.getElementById("copyBtn");
 const clearBtn = document.getElementById("clearBtn");
 
-let current = "";
+let currentWord = "";
+let currentRegex = "";
 
-function updateOutput() {
-  output.textContent = `(?i)\\b${current}\\b`;
+function updateDisplay() {
+  wordDisplay.textContent = "Wort: " + currentWord;
+  regexDisplay.textContent = `(?i)\\b${currentRegex}\\b`;
 }
 
 Object.keys(regexMap).forEach(letter => {
-  const box = document.createElement("div");
-  box.className = "box";
-  box.textContent = letter;
-  box.onclick = () => {
-    current += regexMap[letter];
-    updateOutput();
+  const container = document.createElement("div");
+  container.className = "box";
+
+  const span = document.createElement("span");
+  span.textContent = letter;
+
+  const toggleBtn = document.createElement("button");
+  toggleBtn.textContent = "?";
+  toggleBtn.className = "toggle";
+  toggleBtn.dataset.optional = "false";
+
+  container.appendChild(span);
+  container.appendChild(toggleBtn);
+
+  // Klick auf den Buchstaben → fügt dem Wort + Regex hinzu
+  span.onclick = () => {
+    currentWord += letter;
+    const isOptional = toggleBtn.dataset.optional === "true";
+    currentRegex += isOptional
+      ? `${regexMap[letter]}?[\\W_#*]*`
+      : `${regexMap[letter]}+[\\W_#*]*`;
+    updateDisplay();
   };
-  grid.appendChild(box);
+
+  // Toggle ? optional
+  toggleBtn.onclick = (e) => {
+    e.stopPropagation();
+    toggleBtn.dataset.optional = toggleBtn.dataset.optional === "true" ? "false" : "true";
+    toggleBtn.style.background = toggleBtn.dataset.optional === "true" ? "rgba(0,255,0,0.4)" : "rgba(255,255,255,0.3)";
+  };
+
+  grid.appendChild(container);
 });
 
 copyBtn.onclick = async () => {
-  await navigator.clipboard.writeText(output.textContent);
+  await navigator.clipboard.writeText(regexDisplay.textContent);
   copyBtn.textContent = "Copied!";
   setTimeout(() => copyBtn.textContent = "Copy Regex", 1200);
 };
 
 clearBtn.onclick = () => {
-  current = "";
-  updateOutput();
+  currentWord = "";
+  currentRegex = "";
+  updateDisplay();
 };
 
-// initial output
-updateOutput();
+// initial
+updateDisplay();
 </script>
 </body>
 </html>
