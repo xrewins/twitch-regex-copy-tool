@@ -26,9 +26,19 @@
     border-radius: 10px;
     width: 100%;
     max-width: 700px;
+    cursor: pointer;
+    display: flex;
+    gap: 8px;
+  }
+  .label {
+    flex: 0 0 auto;
+    color: #ffa733;
+    font-weight: bold;
+  }
+  .content {
+    flex: 1 1 auto;
     white-space: pre-wrap;
     word-wrap: break-word;
-    cursor: pointer;
   }
   .display-box:hover {
     background: rgba(255, 165, 0, 0.2);
@@ -110,13 +120,27 @@
     background: #ff9800;
     color: #111;
   }
+  .watermark {
+    position: fixed;
+    bottom: 10px;
+    left: 10px;
+    font-size: 0.85rem;
+    color: rgba(200, 200, 200, 0.5);
+    font-family: monospace;
+  }
 </style>
 </head>
 <body>
 <h1>Twitch Regex Tool</h1>
 
-<div class="display-box" id="wordDisplay">Wort: </div>
-<div class="display-box" id="regexDisplay" title="Klicken zum Kopieren">Regex: (?i)(_|\b)(_|\b)</div>
+<div class="display-box" id="wordDisplay">
+  <span class="label">Wort:</span>
+  <span class="content" id="wordContent"></span>
+</div>
+<div class="display-box" id="regexDisplay" title="Klicken zum Kopieren">
+  <span class="label">Regex:</span>
+  <span class="content" id="regexContent"></span>
+</div>
 
 <div class="grid" id="grid"></div>
 
@@ -126,6 +150,8 @@
 </div>
 
 <div class="chatty-box" id="chattyToggle">CHATTY</div>
+
+<div class="watermark">by rewins</div>
 
 <script>
 const regexMap = {
@@ -162,8 +188,8 @@ const regexMap = {
 };
 
 const grid = document.getElementById("grid");
-const regexDisplay = document.getElementById("regexDisplay");
-const wordDisplay = document.getElementById("wordDisplay");
+const wordContent = document.getElementById("wordContent");
+const regexContent = document.getElementById("regexContent");
 const clearBtn = document.getElementById("clearBtn");
 const regexTestBtn = document.getElementById("regexTestBtn");
 const chattyToggle = document.getElementById("chattyToggle");
@@ -174,8 +200,8 @@ let chattyMode = false;
 
 function updateDisplay() {
   let prefix = chattyMode ? "config:any regi:" : "";
-  wordDisplay.textContent = "Wort: " + currentWord;
-  regexDisplay.textContent = "Regex: " + prefix + `(?i)(_|\\b)${currentRegex}(_|\\b)`;
+  wordContent.textContent = currentWord;
+  regexContent.textContent = prefix + `(?i)(_|\\b)*${currentRegex}(_|\\b)*`;
 }
 
 // Boxen erstellen
@@ -194,24 +220,20 @@ Object.keys(regexMap).forEach(letter => {
   container.appendChild(span);
   container.appendChild(toggleBtn);
 
-  // Klick auf Box = hinzufügen
   container.onclick = (e) => {
-    if (e.target === toggleBtn) return; // Toggle extra
+    if (e.target === toggleBtn) return;
     currentWord += letter;
     const isOptional = toggleBtn.dataset.optional === "true";
     currentRegex += isOptional
       ? `(${regexMap[letter]}*?)`
       : `${regexMap[letter]}+[\\W_#*]*`;
     updateDisplay();
-
-    // ? zurücksetzen
     if (isOptional) {
       toggleBtn.dataset.optional = "false";
       toggleBtn.classList.remove("active");
     }
   };
 
-  // Toggle ?
   toggleBtn.onclick = (e) => {
     e.stopPropagation();
     toggleBtn.dataset.optional = toggleBtn.dataset.optional === "true" ? "false" : "true";
@@ -221,11 +243,11 @@ Object.keys(regexMap).forEach(letter => {
   grid.appendChild(container);
 });
 
-// Regex-Zeile klickbar = Kopieren
-regexDisplay.onclick = async () => {
-  const regexText = regexDisplay.textContent.replace("Regex: ", "");
+// Regex klickbar = Kopieren
+document.getElementById("regexDisplay").onclick = async () => {
+  const regexText = regexContent.textContent;
   await navigator.clipboard.writeText(regexText);
-  regexDisplay.textContent = "Regex: Kopiert!";
+  regexContent.textContent = "Kopiert!";
   setTimeout(updateDisplay, 1200);
 };
 
@@ -238,7 +260,7 @@ clearBtn.onclick = () => {
 
 // regex101 öffnen (ohne config:any regi:)
 regexTestBtn.onclick = () => {
-  let regexText = regexDisplay.textContent.replace("Regex: ", "");
+  let regexText = regexContent.textContent;
   if (regexText.startsWith("config:any regi:")) {
     regexText = regexText.replace("config:any regi:", "");
   }
@@ -258,6 +280,3 @@ updateDisplay();
 </script>
 </body>
 </html>
-
-
-
