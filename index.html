@@ -13,27 +13,24 @@
       padding: 20px;
       background: #0d0d0d;
       color: #f5f5f5;
-      margin: 0;
       height: 100vh;
-      overflow: hidden; /* Kein Scrollen auf der Seite */
+      overflow: hidden; /* kein Seiten-Scroll */
     }
     h1 {
       margin-bottom: 20px;
       color: #fff;
-      text-align: center;
-      font-size: 2rem;
     }
     .display-box {
       font-family: monospace;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
       background: rgba(255, 255, 255, 0.08);
-      padding: 12px;
+      padding: 8px;
       border-radius: 10px;
       width: 100%;
       max-width: 700px;
       cursor: pointer;
       display: flex;
-      gap: 6px;
+      gap: 2px;
       font-size: 1.1rem;
     }
     .label {
@@ -55,14 +52,13 @@
       gap: 12px;
       max-width: 700px;
       width: 100%;
-      margin: 35px 0 25px 0; /* Mehr Abstand nach oben, damit Regex-Zeile nicht reinrutscht */
+      margin: 30px 0 25px 0;
     }
     .box {
       padding: 10px;
       text-align: center;
       border-radius: 16px;
       background: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(12px);
       border: 1px solid rgba(255, 255, 255, 0.2);
       color: #fff;
       font-weight: bold;
@@ -93,10 +89,11 @@
       margin-top: 10px;
       display: flex;
       justify-content: space-between;
+      gap: 10px;
       width: 100%;
       max-width: 700px;
     }
-    .left-controls {
+    .controls-left {
       display: flex;
       gap: 10px;
     }
@@ -114,105 +111,21 @@
     button:hover {
       background: #ffa733;
     }
-    .chatty-box,
-    .fossabot-box {
-      margin-top: 15px;
-      padding: 12px;
-      border-radius: 10px;
-      font-weight: bold;
-      text-align: center;
-      width: 100%;
-      max-width: 700px;
-      cursor: pointer;
-      transition: 0.25s;
-      text-transform: uppercase;
-      position: relative;
-    }
-    .chatty-box {
-      border: 2px solid #9146FF;
-      color: #9146FF;
-    }
-    .chatty-box.active {
-      background: #9146FF;
-      color: #111;
-    }
-    .fossabot-box {
-      border: 2px solid #3399ff;
-      color: #3399ff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-    }
-    .fossabot-box.active {
-      background: #3399ff;
-      color: #111;
-    }
-    .fossabot-box .main-label {
-      font-size: 1.2rem;
-      transition: transform 0.25s ease, font-size 0.25s ease;
-    }
-    .fossabot-box.active .main-label {
-      font-size: 1rem;
-      transform: scale(0.95);
-    }
-    .fossabot-box .mode-label {
-      font-size: 0.75rem;
-      margin-top: 2px;
-      opacity: 0;
-      transition: opacity 0.25s ease;
-    }
-    .fossabot-box.active .mode-label {
-      opacity: 0.85;
-    }
-    .arrow {
-      position: absolute;
-      right: 15px;
-      font-size: 1.5rem;
-      transition: transform 0.2s ease;
-    }
-    .arrow.down {
-      transform: rotate(90deg);
-    }
-    .dropdown {
-      max-height: 0;
-      overflow: hidden;
-      opacity: 0;
-      transition: all 0.3s ease;
-      background: rgba(51, 153, 255, 0.1);
-      border-radius: 8px;
-      margin-top: 5px;
-      width: 100%;
-      max-width: 700px;
-    }
-    .dropdown.open {
-      max-height: 200px;
-      opacity: 1;
-      padding: 8px 0;
-    }
-    .dropdown div {
-      padding: 8px 12px;
-      cursor: pointer;
-      transition: background 0.2s ease;
-      color: #ddd;
-    }
-    .dropdown div:hover {
-      background: rgba(51, 153, 255, 0.2);
-    }
     .suggestions-box {
-      margin-top: 20px;
+      flex: 1;
       width: 100%;
       max-width: 700px;
       background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.2);
       border-radius: 16px;
       padding: 15px;
+      border: 1px solid rgba(255,255,255,0.2);
       display: flex;
       flex-direction: column;
-      height: 350px; /* etwas höher */
+      margin-top: 15px;
+      min-height: 0;
     }
     .suggestions-box h2 {
-      margin: 0 0 10px;
+      margin: 0 0 10px 0;
       text-align: center;
       color: #ffa733;
     }
@@ -239,50 +152,48 @@
     .suggestions-list {
       flex: 1;
       overflow-y: auto;
-      padding-right: 5px;
+      min-height: 0;
     }
     .suggestion-item {
       background: rgba(255,255,255,0.1);
       border-radius: 16px;
-      padding: 6px 8px;
+      padding: 8px 10px;
       margin-bottom: 8px;
       font-family: monospace;
       display: flex;
       flex-direction: column;
-      gap: 6px;
     }
     .suggestion-word {
-      font-size: 1rem;
+      font-size: 1.1rem;
       font-weight: bold;
-      color: #fff;
-      text-transform: uppercase;
+      margin-bottom: 4px;
     }
     .suggestion-regex {
-      font-size: 0.85rem;
+      font-size: 0.9rem;
       color: #ccc;
+      margin-bottom: 6px;
       word-break: break-word;
     }
-    .copy-btn {
+    .suggestion-buttons button {
       width: 100%;
-      padding: 8px;
+      padding: 6px;
       border: none;
       border-radius: 8px;
-      background: #ff9800;
-      color: #111;
-      font-weight: bold;
       cursor: pointer;
+      font-weight: bold;
+      font-size: 0.85rem;
+      background: #ff9800;
+      color: black;
     }
-    .copy-btn:hover {
+    .suggestion-buttons button:hover {
       background: #ffa733;
     }
     .watermark {
       position: fixed;
-      bottom: 10px;
-      left: 50%;
-      transform: translateX(-50%);
+      bottom: 8px;
       text-align: center;
-      font-size: 0.9rem;
-      color: rgba(200, 200, 200, 0.6);
+      font-size: 0.85rem;
+      color: rgba(200, 200, 200, 0.5);
       font-family: monospace;
     }
   </style>
@@ -302,24 +213,11 @@
   <div class="grid" id="grid"></div>
 
   <div class="controls">
-    <div class="left-controls">
+    <div class="controls-left">
       <button id="clearBtn">CLEAR ALL</button>
       <button id="clearLastBtn">CLEAR LAST</button>
     </div>
     <button id="regexTestBtn">TEST REGEX</button>
-  </div>
-
-  <div class="chatty-box" id="chattyToggle">CHATTY</div>
-  <div class="fossabot-box" id="fossabotToggle">
-    <div class="main-label">FOSSABOT</div>
-    <div class="mode-label" id="fossabotModeLabel"></div>
-    <span class="arrow">›</span>
-  </div>
-  <div class="dropdown" id="fossabotMenu">
-    <div data-mode="standard">Standard</div>
-    <div data-mode="keyword">Keyword</div>
-    <div data-mode="blocked">Blocked Terms</div>
-    <div data-mode="negative">Negativ</div>
   </div>
 
   <div class="suggestions-box">
@@ -332,5 +230,169 @@
   </div>
 
   <div class="watermark">© 2025 – rewins / All Right Reserved</div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCfUNk8o8i2JCWmVdbmquayf8mAzVfXssQ",
+      authDomain: "twitch-regex-tool.firebaseapp.com",
+      projectId: "twitch-regex-tool",
+      storageBucket: "twitch-regex-tool.firebasestorage.app",
+      messagingSenderId: "445469176853",
+      appId: "1:445469176853:web:94df70e3f8598a09068a1c"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const regexMap = {
+      a: "[aA@4äÄàáâãåĀ#*]", b: "[bB8ßẞ#*]", c: "[cC(ķčćç¢©#*]",
+      d: "[dDÐďđ#*]", e: "[eE3€èéêëě#*]", f: "[fFƒ#*]",
+      g: "[gG6ɢ9#*]", h: "[hH#*]", i: "[iI1!|ìíîïįī#*]",
+      j: "[jJ#*]", k: "[kKκ#*]", l: "[lL1!|ł#*]",
+      m: "[mM#*]", n: "[nNñńňņ#*]", o: "[oO0öÖóòôõø¤°#*]",
+      p: "[pPρ¶þ#*]", q: "[qQ9#*]", r: "[rRʁЯ®#*]",
+      s: "[sS5$šśş§ßẞ#*]", t: "[tT7†ŧ#*]", u: "[uUúùûüÜūµ#*]",
+      v: "[vV\\/#!*]", w: "[wWvvωŴ#*]", x: "[xX%×χ#*]",
+      y: "[yY¥ýÿ#*]", z: "[zZ2žźżʒ#*]",
+      ä: "[äA@4aA#*]", ö: "[öÖoO#*]", ü: "[üÜuU#*]", ß: "[ßẞ5$sS#*]"
+    };
+
+    const wordContent = document.getElementById("wordContent");
+    const regexContent = document.getElementById("regexContent");
+    const regexDisplay = document.getElementById("regexDisplay");
+    const clearBtn = document.getElementById("clearBtn");
+    const clearLastBtn = document.getElementById("clearLastBtn");
+    const regexTestBtn = document.getElementById("regexTestBtn");
+    const grid = document.getElementById("grid");
+
+    let currentWord = "";
+    let currentRegex = "";
+    let regexParts = [];
+
+    function updateDisplay() {
+      wordContent.textContent = currentWord;
+      regexContent.textContent = `(?i)(_|\\b)${currentRegex}(_|\\b)`;
+    }
+
+    Object.keys(regexMap).forEach(letter => {
+      const container = document.createElement("div");
+      container.className = "box";
+
+      const span = document.createElement("span");
+      span.textContent = letter;
+
+      const toggleBtn = document.createElement("button");
+      toggleBtn.textContent = "?";
+      toggleBtn.className = "toggle";
+      toggleBtn.dataset.optional = "false";
+
+      container.appendChild(span);
+      container.appendChild(toggleBtn);
+
+      container.onclick = (e) => {
+        if (e.target === toggleBtn) return;
+        currentWord += letter;
+        const isOptional = toggleBtn.dataset.optional === "true";
+        const part = isOptional
+          ? `(${regexMap[letter]}*?)+([\\W_#*]*?)*`
+          : `${regexMap[letter]}+[\\W_#*]*`;
+        regexParts.push(part);
+        currentRegex = regexParts.join("");
+        updateDisplay();
+        if (isOptional) {
+          toggleBtn.dataset.optional = "false";
+          toggleBtn.classList.remove("active");
+        }
+      };
+
+      toggleBtn.onclick = (e) => {
+        e.stopPropagation();
+        toggleBtn.dataset.optional = toggleBtn.dataset.optional === "true" ? "false" : "true";
+        toggleBtn.classList.toggle("active");
+      };
+
+      grid.appendChild(container);
+    });
+
+    // Copy Regex + Save to Firestore
+    regexDisplay.onclick = async () => {
+      const regexText = regexContent.textContent;
+      if (!regexText) return;
+      await navigator.clipboard.writeText(regexText);
+      await addDoc(collection(db, "regex_submissions"), {
+        word: currentWord,
+        display: regexText,
+        raw: currentRegex,
+        createdAt: serverTimestamp()
+      });
+      regexContent.textContent = "Kopiert & Gesendet!";
+      setTimeout(updateDisplay, 1200);
+    };
+
+    // Clear All
+    clearBtn.onclick = () => {
+      currentWord = "";
+      currentRegex = "";
+      regexParts = [];
+      updateDisplay();
+    };
+
+    // Clear Last
+    clearLastBtn.onclick = () => {
+      if (currentWord.length > 0) {
+        currentWord = currentWord.slice(0, -1);
+        regexParts.pop();
+        currentRegex = regexParts.join("");
+        updateDisplay();
+      }
+    };
+
+    // regex101 öffnen
+    regexTestBtn.onclick = () => {
+      let regexText = regexContent.textContent;
+      const url = "https://regex101.com/?regex=" + encodeURIComponent(regexText);
+      window.open(url, "_blank");
+    };
+
+    // Suggestions laden
+    const suggestionsList = document.getElementById("suggestionsList");
+    const suggestionsSearch = document.getElementById("suggestionsSearch");
+
+    function renderSuggestions(items, searchQuery) {
+      suggestionsList.innerHTML = "";
+      items
+        .filter(item => item.word.toUpperCase().includes(searchQuery.toUpperCase()))
+        .forEach(obj => {
+          const div = document.createElement("div");
+          div.className = "suggestion-item";
+          div.innerHTML = `
+            <div class="suggestion-word">${obj.word.toUpperCase()}</div>
+            <div class="suggestion-regex">${obj.display || obj.raw}</div>
+            <div class="suggestion-buttons"><button>Copy</button></div>
+          `;
+          div.querySelector("button").onclick = async () => {
+            await navigator.clipboard.writeText(obj.display || obj.raw);
+          };
+          suggestionsList.appendChild(div);
+        });
+    }
+
+    onSnapshot(collection(db, "regex_approved"), (snapshot) => {
+      const approvedItems = snapshot.docs.map(docSnap => ({ id: docSnap.id, ...docSnap.data() }));
+      renderSuggestions(approvedItems, suggestionsSearch.value);
+    });
+
+    suggestionsSearch.addEventListener("input", () => {
+      onSnapshot(collection(db, "regex_approved"), (snapshot) => {
+        const approvedItems = snapshot.docs.map(docSnap => ({ id: docSnap.id, ...docSnap.data() }));
+        renderSuggestions(approvedItems, suggestionsSearch.value);
+      });
+    });
+
+    updateDisplay();
+  </script>
 </body>
 </html>
