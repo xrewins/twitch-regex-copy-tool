@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Twitch Regex Tool</title>
   <style>
     body {
@@ -92,6 +92,10 @@
       justify-content: space-between;
       width: 100%;
       max-width: 700px;
+    }
+    .left-controls {
+      display: flex;
+      gap: 10px;
     }
     button {
       padding: 10px 18px;
@@ -201,7 +205,8 @@
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      margin-bottom: 10px;
+      margin-bottom: 5px; /* Platz fürs Watermark */
+      max-height: 180px;  /* leicht verkürzt damit Watermark darunter passt */
     }
     .suggestions-box h2 {
       margin-top: 0;
@@ -298,8 +303,10 @@
   <div class="grid" id="grid"></div>
 
   <div class="controls">
-    <button id="clearBtn">CLEAR ALL</button>
-    <button id="clearLastBtn">CLEAR LAST</button>
+    <div class="left-controls">
+      <button id="clearBtn">CLEAR ALL</button>
+      <button id="clearLastBtn">CLEAR LAST</button>
+    </div>
     <button id="regexTestBtn">TEST REGEX</button>
   </div>
 
@@ -370,10 +377,10 @@
     const arrow = fossabotToggle.querySelector(".arrow");
 
     let currentWord = "";
-    let currentRegex = "";
+    let regexParts = [];        // parts that form currentRegex
+    let letterHistory = [];     // history of letters to reconstruct Word if needed
     let chattyMode = false;
     let fossabotMode = "standard";
-    let regexHistory = [];
 
     function updateDisplay() {
       let prefix = "";
@@ -381,6 +388,7 @@
       if (fossabotMode === "keyword" || fossabotMode === "blocked") prefix = "regex:" + prefix;
       if (fossabotMode === "negative") prefix = "regex:negative:" + prefix;
 
+      const currentRegex = regexParts.join("");
       wordContent.textContent = currentWord;
       regexContent.textContent = prefix + `(?i)(_|\\b)${currentRegex}(_|\\b)`;
 
@@ -393,7 +401,7 @@
       }
     }
 
-    // Grid
+    // Grid: Buchstaben + ? Toggle
     const grid = document.getElementById("grid");
     Object.keys(regexMap).forEach(letter => {
       const container = document.createElement("div");
@@ -410,85 +418,104 @@
       container.appendChild(span);
       container.appendChild(toggleBtn);
 
+      // Click on letter box
       container.onclick = (e) => {
-        if (e.target === toggleBtn) return;
-        currentWord += letter;
-        regexHistory.push({ word: letter, regex: regexMap[letter] });
+        if (e.target === toggleBtn) return; // if click was on toggle, ignore here
+        // add letter
+        letterHistory.push(letter);
+        currentWord = letterHistory.join("");
+
         const isOptional = toggleBtn.dataset.optional === "true";
-        currentRegex += isOptional
+        const part = isOptional
           ? `(${regexMap[letter]}*?)+([\\W_#*]*?)*`
           : `${regexMap[letter]}+[\\W_#*]*`;
+
+        regexParts.push(part);
         updateDisplay();
+
+        // if it was optional, reset toggle (user wanted the ? to toggle off after choosing)
         if (isOptional) {
           toggleBtn.dataset.optional = "false";
           toggleBtn.classList.remove("active");
         }
       };
 
+      // Toggle ? on/off
       toggleBtn.onclick = (e) => {
         e.stopPropagation();
-        toggleBtn.dataset.optional = toggleBtn.dataset.optional === "true" ? "false" : "true";
+        const now = toggleBtn.dataset.optional === "true" ? "false" : "true";
+        toggleBtn.dataset.optional = now;
         toggleBtn.classList.toggle("active");
       };
 
       grid.appendChild(container);
     });
 
-    // Regex Copy
+    // Regex Display click: copy + save to firestore
     regexDisplay.onclick = async () => {
       const regexText = regexContent.textContent;
+      if (!regexText) return;
       await navigator.clipboard.writeText(regexText);
+
+      // save to Firestore (regex_submissions)
+      const raw = regexParts.join("");
+      try {
+        await addDoc(collection(db, "regex_submissions"), {
+          word: currentWord,
+          display: regexText,
+          raw: raw,
+          createdAt: serverTimestamp()
+        });
+      } catch (err) {
+        console.error("Firestore save failed:", err);
+      }
+
+      // feedback
+      const prev = regexContent.textContent;
       regexContent.textContent = "Kopiert!";
-      await addDoc(collection(db, "regex_submissions"), {
-        word: currentWord,
-        display: regexText,
-        raw: currentRegex,
-        createdAt: serverTimestamp()
-      });
-      setTimeout(updateDisplay, 1200);
+      setTimeout(() => updateDisplay(), 1200);
     };
 
-    // Clear
+    // CLEAR ALL
     clearBtn.onclick = () => {
       currentWord = "";
-      currentRegex = "";
-      regexHistory = [];
+      regexParts = [];
+      letterHistory = [];
       updateDisplay();
     };
 
-    // Clear Last
+    // CLEAR LAST (links neben CLEAR ALL as requested)
     clearLastBtn.onclick = () => {
-      const last = regexHistory.pop();
-      if (last) {
-        currentWord = currentWord.slice(0, -1);
-        currentRegex = currentRegex.slice(0, -(last.regex.length + 8));
-      }
+      if (regexParts.length === 0) return;
+      regexParts.pop();
+      letterHistory.pop();
+      currentWord = letterHistory.join("");
       updateDisplay();
     };
 
-    // regex101 öffnen
+    // TEST REGEX (open regex101) — remove config:any regi: before opening
     regexTestBtn.onclick = () => {
-      let regexText = regexContent.textContent;
+      let regexText = regexContent.textContent || "";
       regexText = regexText.replace(/^config:any regi:/, "");
       const url = "https://regex101.com/?regex=" + encodeURIComponent(regexText);
       window.open(url, "_blank");
     };
 
-    // Chatty Toggle
+    // Chatty toggle
     chattyToggle.onclick = () => {
       chattyMode = !chattyMode;
-      if (chattyMode) fossabotMode = "standard";
+      if (chattyMode) fossabotMode = "standard"; // deactivate fossabot when chatty on
       chattyToggle.classList.toggle("active", chattyMode);
       updateDisplay();
     };
 
-    // Fossabot Toggle
+    // Fossabot toggle (show/hide dropdown)
     fossabotToggle.onclick = () => {
       arrow.classList.toggle("down");
       fossabotMenu.classList.toggle("open");
     };
 
-    // Dropdown Auswahl
+    // Fossabot dropdown selection
     fossabotMenu.querySelectorAll("div").forEach(item => {
       item.onclick = () => {
         fossabotMode = item.dataset.mode;
@@ -500,40 +527,44 @@
       };
     });
 
-    // Suggestions
+    // Suggestions: load approved regex from Firestore and render
     const suggestionList = document.getElementById("suggestionList");
     const suggestionSearch = document.getElementById("suggestionSearch");
+    let approvedCache = []; // cache latest approved items
 
     function renderSuggestions(items, query) {
       suggestionList.innerHTML = "";
       items
-        .filter(item => item.word.toUpperCase().includes(query.toUpperCase()))
+        .filter(item => (item.word || "").toUpperCase().includes((query||"").toUpperCase()))
         .forEach(obj => {
           const div = document.createElement("div");
           div.className = "item";
           div.innerHTML = `
-            <div class="word">${obj.word.toUpperCase()}</div>
-            <div class="regex">${obj.display || obj.raw}</div>
+            <div class="word">${(obj.word||"").toUpperCase()}</div>
+            <div class="regex">${obj.display || obj.raw || ""}</div>
             <div class="buttons">
               <button class="copy">COPY</button>
             </div>
           `;
           div.querySelector(".copy").onclick = async () => {
-            await navigator.clipboard.writeText(obj.display || obj.raw);
+            await navigator.clipboard.writeText(obj.display || obj.raw || "");
           };
           suggestionList.appendChild(div);
         });
     }
 
+    // listen to approved collection
     onSnapshot(collection(db, "regex_approved"), (snapshot) => {
-      const suggestions = snapshot.docs.map(docSnap => ({ id: docSnap.id, ...docSnap.data() }));
-      renderSuggestions(suggestions, suggestionSearch.value);
-      suggestionSearch.addEventListener("input", () => {
-        renderSuggestions(suggestions, suggestionSearch.value);
-      });
+      approvedCache = snapshot.docs.map(docSnap => ({ id: docSnap.id, ...docSnap.data() }));
+      renderSuggestions(approvedCache, suggestionSearch.value);
     });
 
-    // Init
+    // search input
+    suggestionSearch.addEventListener("input", () => {
+      renderSuggestions(approvedCache, suggestionSearch.value);
+    });
+
+    // initial display
     updateDisplay();
   </script>
 </body>
