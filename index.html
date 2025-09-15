@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Twitch Regex Tool</title>
+  <title>Regex Tool</title>
   <style>
     body {
       font-family: sans-serif;
@@ -14,50 +14,71 @@
       background: #0d0d0d;
       color: #f5f5f5;
       height: 100vh;
-      overflow: hidden; /* Kein Scrollen der ganzen Seite */
-    }
-    h1 {
-      margin-bottom: 20px;
-      color: #fff;
-      text-align: center;
+      overflow: hidden;
+      box-sizing: border-box;
+      position: relative;
     }
     .display-box {
       font-family: monospace;
-      margin-bottom: 8px;
+      margin-bottom: 12px;
       background: rgba(255, 255, 255, 0.08);
-      padding: 8px;
-      border-radius: 10px;
+      padding: 12px;
+      border-radius: 12px;
       width: 100%;
-      max-width: 700px;
+      max-width: 800px;
       cursor: pointer;
       display: flex;
-      gap: 2px;
+      gap: 10px;
+      font-size: 1.1rem;
+      align-items: center;
+      min-height: 50px;
+      box-sizing: border-box;
     }
     .label {
-      flex: 0 0 65px;
+      flex: 0 0 80px;
       color: #ffa733;
       font-weight: bold;
+      font-size: 1.1rem;
     }
     .content {
       flex: 1 1 auto;
-      white-space: pre-wrap;
-      word-wrap: break-word;
+      white-space: nowrap;
+      overflow-x: auto;
+      overflow-y: hidden;
+      font-size: 1.1rem;
+      padding-bottom: 4px;
+      scrollbar-width: thin;
+      scrollbar-color: #ffa733 transparent;
+      height: 24px;
+      display: flex;
+      align-items: center;
+    }
+    .content::-webkit-scrollbar {
+      height: 4px;
+    }
+    .content::-webkit-scrollbar-track {
+      background: transparent;
+      border-radius: 2px;
+    }
+    .content::-webkit-scrollbar-thumb {
+      background: #ffa733;
+      border-radius: 2px;
     }
     .display-box:hover {
       background: rgba(255, 165, 0, 0.2);
     }
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
-      gap: 12px;
-      max-width: 700px;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 15px;
+      max-width: 800px;
       width: 100%;
-      margin: 20px 0;
+      margin: 25px 0;
     }
     .box {
-      padding: 10px;
+      padding: 15px;
       text-align: center;
-      border-radius: 16px;
+      border-radius: 18px;
       background: rgba(255, 255, 255, 0.05);
       backdrop-filter: blur(12px);
       border: 1px solid rgba(255, 255, 255, 0.2);
@@ -68,66 +89,77 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      font-size: 1.2rem;
     }
     .box:hover {
       background: rgba(255, 165, 0, 0.3);
-      transform: scale(1.05); /* Animation zurück */
+      transform: scale(1.05);
     }
     .toggle {
       background: rgba(255,255,255,0.2);
       border: none;
-      border-radius: 6px;
-      padding: 2px 6px;
+      border-radius: 8px;
+      padding: 4px 8px;
       cursor: pointer;
-      font-size: 0.9rem;
-      margin-left: 5px;
+      font-size: 1rem;
+      margin-left: 8px;
       color: #fff;
     }
     .toggle.active {
       background: rgba(255, 165, 0, 0.8);
     }
     .controls {
-      margin-top: 10px;
+      margin-top: 15px;
       display: flex;
       justify-content: space-between;
       width: 100%;
-      max-width: 700px;
+      max-width: 800px;
     }
     .left-controls {
       display: flex;
-      gap: 10px;
+      gap: 15px;
     }
     button {
-      padding: 10px 18px;
+      padding: 12px 22px;
       border: none;
-      border-radius: 12px;
+      border-radius: 14px;
       cursor: pointer;
       background: #ff9800;
       color: #111;
       font-weight: bold;
       transition: 0.2s;
       text-transform: uppercase;
+      font-size: 1.1rem;
     }
     button:hover {
       background: #ffa733;
     }
+    .toggle-container {
+      display: flex;
+      width: 100%;
+      max-width: 800px;
+      gap: 15px;
+      margin-top: 20px;
+    }
     .chatty-box,
-    .fossabot-box,
-    .suggestions-box {
-      margin-top: 15px;
-      padding: 12px;
-      border-radius: 10px;
+    .fossabot-box {
+      flex: 1;
+      padding: 15px;
+      border-radius: 12px;
       font-weight: bold;
       text-align: center;
-      width: 100%;
-      max-width: 700px;
       cursor: pointer;
       transition: 0.25s;
       text-transform: uppercase;
       position: relative;
+      font-size: 1.2rem;
+      min-height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     .chatty-box {
-      border: 2px solid #9146FF; /* Twitch Lila */
+      border: 2px solid #9146FF;
       color: #9146FF;
     }
     .chatty-box.active {
@@ -137,26 +169,23 @@
     .fossabot-box {
       border: 2px solid #3399ff;
       color: #3399ff;
-      display: flex;
       flex-direction: column;
-      align-items: center;
-      justify-content: center;
     }
     .fossabot-box.active {
       background: #3399ff;
       color: #111;
     }
     .fossabot-box .main-label {
-      font-size: 1.2rem;
+      font-size: 1.4rem;
       transition: transform 0.25s ease, font-size 0.25s ease;
     }
     .fossabot-box.active .main-label {
-      font-size: 1rem;
+      font-size: 1.2rem;
       transform: scale(0.95);
     }
     .fossabot-box .mode-label {
-      font-size: 0.75rem;
-      margin-top: 2px;
+      font-size: 0.9rem;
+      margin-top: 4px;
       opacity: 0;
       transition: opacity 0.25s ease;
     }
@@ -165,12 +194,15 @@
     }
     .arrow {
       position: absolute;
-      right: 15px;
-      font-size: 1.5rem;
+      right: 20px;
+      font-size: 1.8rem;
       transition: transform 0.2s ease;
     }
     .arrow.down {
-      transform: rotate(90deg);
+      transform: rotate(0deg);
+    }
+    .arrow.up {
+      transform: rotate(180deg);
     }
     .dropdown {
       max-height: 0;
@@ -178,13 +210,17 @@
       opacity: 0;
       transition: all 0.3s ease;
       background: rgba(51, 153, 255, 0.1);
-      border-radius: 8px;
-      margin-top: 5px;
+      border-radius: 10px;
+      margin-top: 8px;
       width: 100%;
-      max-width: 700px;
+      max-width: 390px;
+      position: absolute;
+      z-index: 10;
+      right: 0;
+      top: 100%;
     }
     .dropdown.open {
-      max-height: 200px;
+      max-height: 180px;
       opacity: 1;
       padding: 8px 0;
     }
@@ -193,84 +229,104 @@
       cursor: pointer;
       transition: background 0.2s ease;
       color: #ddd;
+      font-size: 1rem;
     }
     .dropdown div:hover {
       background: rgba(51, 153, 255, 0.2);
     }
     .suggestions-box {
-      flex: 1;
+      position: absolute;
+      right: 20px;
+      top: 20px;
+      width: 350px;
+      height: calc(100vh - 150px);
       background: rgba(255,255,255,0.05);
       border-radius: 16px;
       border: 1px solid rgba(255,255,255,0.2);
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      margin-bottom: 5px; /* Platz fürs Watermark */
-      max-height: 180px;  /* leicht verkürzt damit Watermark darunter passt */
+      padding: 15px;
     }
     .suggestions-box h2 {
       margin-top: 0;
       text-align: center;
       color: #ffa733;
+      font-size: 1.4rem;
+      margin-bottom: 15px;
     }
     .search-container {
       display: flex;
       align-items: center;
-      margin-bottom: 10px;
+      margin-bottom: 15px;
       background: rgba(255,255,255,0.1);
-      border-radius: 10px;
-      padding: 4px 8px;
+      border-radius: 12px;
+      padding: 8px 12px;
     }
     .search-container input {
       flex: 1;
       border: none;
       background: transparent;
       color: #fff;
-      font-size: 0.9rem;
+      font-size: 1rem;
       outline: none;
     }
     .search-container .icon {
-      margin-left: 6px;
+      margin-left: 8px;
       color: #aaa;
+      font-size: 1.1rem;
     }
     .list {
       flex: 1;
       overflow-y: auto;
-      padding-right: 5px;
+      padding-right: 8px;
       min-height: 0;
+      scrollbar-width: thin;
+      scrollbar-color: #ffa733 transparent;
+    }
+    .list::-webkit-scrollbar {
+      width: 4px;
+    }
+    .list::-webkit-scrollbar-track {
+      background: transparent;
+      border-radius: 2px;
+    }
+    .list::-webkit-scrollbar-thumb {
+      background: #ffa733;
+      border-radius: 2px;
     }
     .item {
       background: rgba(255,255,255,0.1);
       border-radius: 16px;
-      padding: 6px 8px;
-      margin-bottom: 8px;
+      padding: 10px 12px;
+      margin-bottom: 12px;
       font-family: monospace;
     }
     .word {
-      font-size: 1rem;
+      font-size: 1.1rem;
       font-weight: bold;
       color: #fff;
-      margin-bottom: 4px;
+      margin-bottom: 6px;
       text-transform: uppercase;
     }
     .regex {
-      font-size: 0.85rem;
+      font-size: 0.95rem;
       color: #ccc;
-      margin-bottom: 6px;
+      margin-bottom: 8px;
       word-break: break-word;
     }
     .buttons {
       display: flex;
-      gap: 6px;
+      gap: 8px;
     }
     .buttons button {
       flex: 1;
-      padding: 5px;
+      padding: 6px;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       cursor: pointer;
       font-weight: bold;
-      font-size: 0.8rem;
+      font-size: 0.9rem;
     }
     .copy {
       background: #ff9800;
@@ -281,16 +337,22 @@
     }
     .watermark {
       text-align: center;
-      font-size: 0.85rem;
+      font-size: 0.9rem;
       color: rgba(200, 200, 200, 0.5);
       font-family: monospace;
-      margin-top: 8px;
+      position: absolute;
+      bottom: 15px;
+      left: 0;
+      right: 0;
+      padding: 12px;
+    }
+    .fossabot-container {
+      position: relative;
+      flex: 1;
     }
   </style>
 </head>
 <body>
-  <h1>Twitch Regex Tool</h1>
-
   <div class="display-box" id="wordDisplay">
     <span class="label">Word:</span>
     <span class="content" id="wordContent"></span>
@@ -299,9 +361,7 @@
     <span class="label">Regex:</span>
     <span class="content" id="regexContent"></span>
   </div>
-
   <div class="grid" id="grid"></div>
-
   <div class="controls">
     <div class="left-controls">
       <button id="clearBtn">CLEAR ALL</button>
@@ -309,21 +369,22 @@
     </div>
     <button id="regexTestBtn">TEST REGEX</button>
   </div>
-
-  <div class="chatty-box" id="chattyToggle">CHATTY</div>
-
-  <div class="fossabot-box" id="fossabotToggle">
-    <div class="main-label">FOSSABOT</div>
-    <div class="mode-label" id="fossabotModeLabel"></div>
-    <span class="arrow">›</span>
+  <div class="toggle-container">
+    <div class="chatty-box" id="chattyToggle">CHATTY</div>
+    <div class="fossabot-container">
+      <div class="fossabot-box" id="fossabotToggle">
+        <div class="main-label">FOSSABOT</div>
+        <div class="mode-label" id="fossabotModeLabel"></div>
+        <span class="arrow down">▼</span>
+      </div>
+      <div class="dropdown" id="fossabotMenu">
+        <div data-mode="standard">Standard</div>
+        <div data-mode="keyword">Keyword</div>
+        <div data-mode="blocked">Blocked Terms</div>
+        <div data-mode="negative">Negativ</div>
+      </div>
+    </div>
   </div>
-  <div class="dropdown" id="fossabotMenu">
-    <div data-mode="standard">Standard</div>
-    <div data-mode="keyword">Keyword</div>
-    <div data-mode="blocked">Blocked Terms</div>
-    <div data-mode="negative">Negativ</div>
-  </div>
-
   <div class="suggestions-box">
     <h2>Suggestions</h2>
     <div class="search-container">
@@ -332,7 +393,6 @@
     </div>
     <div id="suggestionList" class="list"></div>
   </div>
-
   <div class="watermark">© 2025 – rewins / All Rights Reserved</div>
 
   <script type="module">
@@ -352,16 +412,16 @@
     const db = getFirestore(app);
 
     const regexMap = {
-      a: "[aA@4äÄàáâãåĀ#*]", b: "[bB8ßẞ#*]", c: "[cC(ķčćç¢©#*]",
-      d: "[dDÐďđ#*]", e: "[eE3€èéêëě#*]", f: "[fFƒ#*]",
-      g: "[gG6ɢ9#*]", h: "[hH#*]", i: "[iI1!|ìíîïįī#*]",
-      j: "[jJ#*]", k: "[kKκ#*]", l: "[lL1!|ł#*]",
-      m: "[mM#*]", n: "[nNñńňņ#*]", o: "[oO0öÖóòôõø¤°#*]",
-      p: "[pPρ¶þ#*]", q: "[qQ9#*]", r: "[rRʁЯ®#*]",
-      s: "[sS5$šśş§ßẞ#*]", t: "[tT7†ŧ#*]", u: "[uUúùûüÜūµ#*]",
-      v: "[vV\\/#!*]", w: "[wWvvωŴ#*]", x: "[xX%×χ#*]",
-      y: "[yY¥ýÿ#*]", z: "[zZ2žźżʒ#*]",
-      ä: "[äA@4aA#*]", ö: "[öÖoO#*]", ü: "[üÜuU#*]", ß: "[ßẞ5$sS#*]"
+      a: "[aA@4ÀÂÁÃÄÅÆĂĄ#*]", b: "[bB8Бβ#*]", c: "[cC(ÇĆĈĊČ#*]",
+      d: "[dDÐĎĐ#*]", e: "[eE3ÈÉÊËĒĔĖĘĚ#*]", f: "[fFƑ#*]",
+      g: "[gG6ĜĞĠĢ9#*]", h: "[hH#*]", i: "[iI1!|ÌÍÎÏĨĪĮİ#*]",
+      j: "[jJ#*]", k: "[kKĶ#*]", l: "[lL1!|Ļ#*]",
+      m: "[mM#*]", n: "[nNÑŃŅŇ#*]", o: "[oO0ÒÓÔÕÖØŌŎŐƠ#*]",
+      p: "[pPÞ#*]", q: "[qQ9#*]", r: "[rRŔŖŘ#*]",
+      s: "[sS5$ŚŜŞŠ#*]", t: "[tT7ŢŤ#*]", u: "[uUÙÚÛÜŨŪŬŮŰŲ#*]",
+      v: "[vV\\/#!*]", w: "[wWvvŴ#*]", x: "[xX%×Ÿ#*]",
+      y: "[yYÝŶ#*]", z: "[zZ2ŹŻŽ#*]",
+      Ä: "[ÄÀÂA@4aA#*]", Ö: "[ÖÄÀÂoO#*]", Ü: "[ÜÄÀÂuU#*]", ß: "[ßβ5$sS#*]"
     };
 
     const wordContent = document.getElementById("wordContent");
@@ -377,20 +437,25 @@
     const arrow = fossabotToggle.querySelector(".arrow");
 
     let currentWord = "";
-    let regexParts = [];        // parts that form currentRegex
-    let letterHistory = [];     // history of letters to reconstruct Word if needed
+    let regexParts = [];
+    let letterHistory = [];
     let chattyMode = false;
     let fossabotMode = "standard";
+    let approvedCache = [];
 
-    function updateDisplay() {
+    // 🔥 zentrale Prefix-Logik
+    function getPrefix() {
       let prefix = "";
       if (chattyMode) prefix = "config:any regi:";
       if (fossabotMode === "keyword" || fossabotMode === "blocked") prefix = "regex:" + prefix;
       if (fossabotMode === "negative") prefix = "regex:negative:" + prefix;
+      return prefix;
+    }
 
+    function updateDisplay() {
       const currentRegex = regexParts.join("");
       wordContent.textContent = currentWord;
-      regexContent.textContent = prefix + `(?i)(_|\\b)${currentRegex}(_|\\b)`;
+      regexContent.textContent = getPrefix() + `(?i)(_|\\b)${currentRegex}(_|\\b)`;
 
       if (fossabotMode === "standard") {
         fossabotToggle.classList.remove("active");
@@ -399,9 +464,11 @@
         fossabotToggle.classList.add("active");
         fossabotModeLabel.textContent = fossabotMode;
       }
+
+      // 🔥 Suggestions neu rendern mit aktuellem Prefix
+      renderSuggestions(approvedCache, suggestionSearch.value);
     }
 
-    // Grid: Buchstaben + ? Toggle
     const grid = document.getElementById("grid");
     Object.keys(regexMap).forEach(letter => {
       const container = document.createElement("div");
@@ -418,10 +485,8 @@
       container.appendChild(span);
       container.appendChild(toggleBtn);
 
-      // Click on letter box
       container.onclick = (e) => {
-        if (e.target === toggleBtn) return; // if click was on toggle, ignore here
-        // add letter
+        if (e.target === toggleBtn) return;
         letterHistory.push(letter);
         currentWord = letterHistory.join("");
 
@@ -433,14 +498,12 @@
         regexParts.push(part);
         updateDisplay();
 
-        // if it was optional, reset toggle (user wanted the ? to toggle off after choosing)
         if (isOptional) {
           toggleBtn.dataset.optional = "false";
           toggleBtn.classList.remove("active");
         }
       };
 
-      // Toggle ? on/off
       toggleBtn.onclick = (e) => {
         e.stopPropagation();
         const now = toggleBtn.dataset.optional === "true" ? "false" : "true";
@@ -451,18 +514,31 @@
       grid.appendChild(container);
     });
 
-    // Regex Display click: copy + save to firestore
+    function clearAll() {
+      currentWord = "";
+      regexParts = [];
+      letterHistory = [];
+      updateDisplay();
+    }
+
     regexDisplay.onclick = async () => {
       const regexText = regexContent.textContent;
       if (!regexText) return;
+
+      // 1. Kopieren (mit Prefix)
       await navigator.clipboard.writeText(regexText);
 
-      // save to Firestore (regex_submissions)
+      // 2. Für DB Prefix entfernen
+      let regexForDB = regexText;
+      regexForDB = regexForDB.replace(/^config:any regi:/, "");
+      regexForDB = regexForDB.replace(/^regex:negative:/, "");
+      regexForDB = regexForDB.replace(/^regex:/, "");
+
       const raw = regexParts.join("");
       try {
         await addDoc(collection(db, "regex_submissions"), {
           word: currentWord,
-          display: regexText,
+          display: regexForDB,
           raw: raw,
           createdAt: serverTimestamp()
         });
@@ -470,21 +546,14 @@
         console.error("Firestore save failed:", err);
       }
 
-      // feedback
-      const prev = regexContent.textContent;
       regexContent.textContent = "Kopiert!";
-      setTimeout(() => updateDisplay(), 1200);
+      setTimeout(() => {
+        clearAll();
+      }, 1200);
     };
 
-    // CLEAR ALL
-    clearBtn.onclick = () => {
-      currentWord = "";
-      regexParts = [];
-      letterHistory = [];
-      updateDisplay();
-    };
+    clearBtn.onclick = clearAll;
 
-    // CLEAR LAST (links neben CLEAR ALL as requested)
     clearLastBtn.onclick = () => {
       if (regexParts.length === 0) return;
       regexParts.pop();
@@ -493,47 +562,46 @@
       updateDisplay();
     };
 
-    // TEST REGEX (open regex101) — remove config:any regi: before opening
     regexTestBtn.onclick = () => {
       let regexText = regexContent.textContent || "";
       regexText = regexText.replace(/^config:any regi:/, "");
+      regexText = regexText.replace(/^regex:negative:/, "");
+      regexText = regexText.replace(/^regex:/, "");
       const url = "https://regex101.com/?regex=" + encodeURIComponent(regexText);
       window.open(url, "_blank");
     };
 
-    // Chatty toggle
     chattyToggle.onclick = () => {
       chattyMode = !chattyMode;
-      if (chattyMode) fossabotMode = "standard"; // deactivate fossabot when chatty on
+      if (chattyMode) fossabotMode = "standard";
       chattyToggle.classList.toggle("active", chattyMode);
       updateDisplay();
     };
 
-    // Fossabot toggle (show/hide dropdown)
     fossabotToggle.onclick = () => {
       arrow.classList.toggle("down");
+      arrow.classList.toggle("up");
       fossabotMenu.classList.toggle("open");
     };
 
-    // Fossabot dropdown selection
     fossabotMenu.querySelectorAll("div").forEach(item => {
       item.onclick = () => {
         fossabotMode = item.dataset.mode;
         chattyMode = false;
         chattyToggle.classList.remove("active");
         fossabotMenu.classList.remove("open");
-        arrow.classList.remove("down");
+        arrow.classList.remove("up");
+        arrow.classList.add("down");
         updateDisplay();
       };
     });
 
-    // Suggestions: load approved regex from Firestore and render
     const suggestionList = document.getElementById("suggestionList");
     const suggestionSearch = document.getElementById("suggestionSearch");
-    let approvedCache = []; // cache latest approved items
 
     function renderSuggestions(items, query) {
       suggestionList.innerHTML = "";
+      const prefix = getPrefix();
       items
         .filter(item => (item.word || "").toUpperCase().includes((query||"").toUpperCase()))
         .forEach(obj => {
@@ -541,30 +609,32 @@
           div.className = "item";
           div.innerHTML = `
             <div class="word">${(obj.word||"").toUpperCase()}</div>
-            <div class="regex">${obj.display || obj.raw || ""}</div>
+            <div class="regex">${prefix}${obj.display || obj.raw || ""}</div>
             <div class="buttons">
               <button class="copy">COPY</button>
             </div>
           `;
           div.querySelector(".copy").onclick = async () => {
-            await navigator.clipboard.writeText(obj.display || obj.raw || "");
+            await navigator.clipboard.writeText(prefix + (obj.display || obj.raw || ""));
           };
           suggestionList.appendChild(div);
         });
     }
 
-    // listen to approved collection
     onSnapshot(collection(db, "regex_approved"), (snapshot) => {
       approvedCache = snapshot.docs.map(docSnap => ({ id: docSnap.id, ...docSnap.data() }));
       renderSuggestions(approvedCache, suggestionSearch.value);
     });
 
-    // search input
     suggestionSearch.addEventListener("input", () => {
       renderSuggestions(approvedCache, suggestionSearch.value);
     });
 
-    // initial display
+    regexContent.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      regexContent.scrollLeft += e.deltaY;
+    });
+
     updateDisplay();
   </script>
 </body>
