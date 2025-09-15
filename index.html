@@ -14,7 +14,7 @@
       background: #0d0d0d;
       color: #f5f5f5;
       height: 100vh;
-      overflow: hidden; /* kein Seiten-Scroll */
+      overflow: hidden; /* kein globales Scrollen */
     }
     h1 {
       margin-bottom: 20px;
@@ -43,9 +43,6 @@
       white-space: pre-wrap;
       word-wrap: break-word;
     }
-    .display-box:hover {
-      background: rgba(255, 165, 0, 0.2);
-    }
     .grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
@@ -67,10 +64,6 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-    }
-    .box:hover {
-      background: rgba(255, 165, 0, 0.3);
-      transform: scale(1.05);
     }
     .toggle {
       background: rgba(255,255,255,0.2);
@@ -111,6 +104,45 @@
     button:hover {
       background: #ffa733;
     }
+
+    /* Fossabot + Chatty Boxen */
+    .tools {
+      display: flex;
+      gap: 20px;
+      margin-top: 20px;
+      width: 100%;
+      max-width: 700px;
+      flex-shrink: 0;
+    }
+    .tool-box {
+      flex: 1;
+      background: rgba(255,255,255,0.05);
+      border-radius: 16px;
+      padding: 12px;
+      border: 1px solid rgba(255,255,255,0.2);
+      display: flex;
+      flex-direction: column;
+      height: 180px;
+    }
+    .tool-box h3 {
+      margin: 0 0 8px 0;
+      text-align: center;
+      color: #ffa733;
+    }
+    textarea {
+      flex: 1;
+      resize: none;
+      background: rgba(255,255,255,0.1);
+      border: none;
+      border-radius: 10px;
+      padding: 8px;
+      color: #fff;
+      font-family: monospace;
+      font-size: 0.9rem;
+      outline: none;
+    }
+
+    /* Suggestions Box */
     .suggestions-box {
       flex: 1;
       width: 100%;
@@ -122,7 +154,7 @@
       display: flex;
       flex-direction: column;
       margin-top: 15px;
-      min-height: 0;
+      min-height: 0; /* sorgt dafür, dass die Box nicht zu lang wird */
     }
     .suggestions-box h2 {
       margin: 0 0 10px 0;
@@ -188,6 +220,7 @@
     .suggestion-buttons button:hover {
       background: #ffa733;
     }
+
     .watermark {
       position: fixed;
       bottom: 8px;
@@ -218,6 +251,17 @@
       <button id="clearLastBtn">CLEAR LAST</button>
     </div>
     <button id="regexTestBtn">TEST REGEX</button>
+  </div>
+
+  <div class="tools">
+    <div class="tool-box">
+      <h3>Fossabot</h3>
+      <textarea readonly id="fossabotBox"></textarea>
+    </div>
+    <div class="tool-box">
+      <h3>Chatty</h3>
+      <textarea readonly id="chattyBox"></textarea>
+    </div>
   </div>
 
   <div class="suggestions-box">
@@ -267,6 +311,8 @@
     const clearLastBtn = document.getElementById("clearLastBtn");
     const regexTestBtn = document.getElementById("regexTestBtn");
     const grid = document.getElementById("grid");
+    const fossabotBox = document.getElementById("fossabotBox");
+    const chattyBox = document.getElementById("chattyBox");
 
     let currentWord = "";
     let currentRegex = "";
@@ -274,7 +320,11 @@
 
     function updateDisplay() {
       wordContent.textContent = currentWord;
-      regexContent.textContent = `(?i)(_|\\b)${currentRegex}(_|\\b)`;
+      currentRegex = regexParts.join("");
+      const regexFull = `(?i)(_|\\b)${currentRegex}(_|\\b)`;
+      regexContent.textContent = regexFull;
+      fossabotBox.value = regexFull;
+      chattyBox.value = regexFull;
     }
 
     Object.keys(regexMap).forEach(letter => {
@@ -300,7 +350,6 @@
           ? `(${regexMap[letter]}*?)+([\\W_#*]*?)*`
           : `${regexMap[letter]}+[\\W_#*]*`;
         regexParts.push(part);
-        currentRegex = regexParts.join("");
         updateDisplay();
         if (isOptional) {
           toggleBtn.dataset.optional = "false";
@@ -317,7 +366,6 @@
       grid.appendChild(container);
     });
 
-    // Copy Regex + Save to Firestore
     regexDisplay.onclick = async () => {
       const regexText = regexContent.textContent;
       if (!regexText) return;
@@ -332,7 +380,6 @@
       setTimeout(updateDisplay, 1200);
     };
 
-    // Clear All
     clearBtn.onclick = () => {
       currentWord = "";
       currentRegex = "";
@@ -340,24 +387,20 @@
       updateDisplay();
     };
 
-    // Clear Last
     clearLastBtn.onclick = () => {
       if (currentWord.length > 0) {
         currentWord = currentWord.slice(0, -1);
         regexParts.pop();
-        currentRegex = regexParts.join("");
         updateDisplay();
       }
     };
 
-    // regex101 öffnen
     regexTestBtn.onclick = () => {
       let regexText = regexContent.textContent;
       const url = "https://regex101.com/?regex=" + encodeURIComponent(regexText);
       window.open(url, "_blank");
     };
 
-    // Suggestions laden
     const suggestionsList = document.getElementById("suggestionsList");
     const suggestionsSearch = document.getElementById("suggestionsSearch");
 
