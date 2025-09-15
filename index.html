@@ -375,22 +375,24 @@ Object.keys(regexMap).forEach(letter => {
   grid.appendChild(container);
 });
 
-// Copy & submit regex
+// Regex Copy
 regexDisplay.onclick = async () => {
   const regexText = regexContent.textContent;
   await navigator.clipboard.writeText(regexText);
 
+  // Speichern in Firestore
   try {
     await addDoc(collection(db, "regex_submissions"), {
       display: regexText,
       raw: currentRegex,
-      createdAt: new Date()
+      word: currentWord, // <-- Wort wird mitgespeichert!
+      createdAt: serverTimestamp()
     });
-    regexContent.textContent = "Kopiert & gespeichert!";
-  } catch (err) {
-    console.error("Fehler beim Speichern:", err);
+  } catch (e) {
+    console.error("Error adding document: ", e);
   }
 
+  regexContent.textContent = "Kopiert!";
   setTimeout(updateDisplay, 1200);
 };
 
@@ -465,3 +467,4 @@ updateDisplay();
 </script>
 </body>
 </html>
+
