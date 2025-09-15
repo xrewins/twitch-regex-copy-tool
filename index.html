@@ -355,7 +355,7 @@ Object.keys(regexMap).forEach(letter => {
     currentWord += letter;
     const isOptional = toggleBtn.dataset.optional === "true";
     const part = isOptional
-      ? `(?*(${regexMap[letter]}*?)+([\\W_#*]*?)*)`
+      ? `(${regexMap[letter]}*?)+([\\W_#*]*?)`
       : `${regexMap[letter]}+[\\W_#*]*`;
     regexParts.push(part);
     currentRegex = regexParts.join("");
