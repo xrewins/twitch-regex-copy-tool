@@ -144,7 +144,7 @@
     .chatty-box,
     .fossabot-box {
       flex: 1;
-      padding: 15px;
+      padding: 10px;         /* vorher 15px */
       border-radius: 12px;
       font-weight: bold;
       text-align: center;
@@ -152,8 +152,8 @@
       transition: 0.25s;
       text-transform: uppercase;
       position: relative;
-      font-size: 1.2rem;
-      min-height: 60px;
+      font-size: 1.08rem;    /* leicht kleiner, vorher 1.2rem */
+      min-height: 38px;      /* vorher 60px */
       display: flex;
       align-items: center;
       justify-content: center;
@@ -235,11 +235,11 @@
       background: rgba(51, 153, 255, 0.2);
     }
     .suggestions-box {
-      position: absolute;
+      position: fixed;
       right: 20px;
       top: 20px;
+      bottom: 20px;
       width: 350px;
-      height: calc(100vh - 150px);
       background: rgba(255,255,255,0.05);
       border-radius: 16px;
       border: 1px solid rgba(255,255,255,0.2);
@@ -247,6 +247,7 @@
       flex-direction: column;
       overflow: hidden;
       padding: 15px;
+      z-index: 10;
     }
     .suggestions-box h2 {
       margin-top: 0;
@@ -350,6 +351,318 @@
       position: relative;
       flex: 1;
     }
+    
+    /* Neuer Feedback-Chat Button */
+    .feedback-chat {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      width: 60px;
+      height: 60px;
+      background: #ff9800;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
+      z-index: 100;
+      transition: all 0.3s ease;
+    }
+    .feedback-chat:hover {
+      transform: scale(1.1);
+      box-shadow: 0 6px 16px rgba(255, 152, 0, 0.4);
+    }
+    .feedback-chat svg {
+      width: 30px;
+      height: 30px;
+      fill: #0d0d0d;
+    }
+    
+    /* Feedback Modal */
+    .feedback-modal {
+      position: fixed;
+      bottom: 90px;
+      left: 20px;
+      width: 350px;
+      background: rgba(35, 35, 35, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      z-index: 99;
+      transform: translateY(20px) scale(0.95);
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+    .feedback-modal.open {
+      transform: translateY(0) scale(1);
+      opacity: 1;
+      visibility: visible;
+    }
+    .feedback-modal h3 {
+      margin-top: 0;
+      color: #ffa733;
+      font-size: 1.3rem;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+    .feedback-modal textarea {
+      width: 100%;
+      height: 120px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 12px;
+      padding: 12px;
+      color: #fff;
+      font-family: sans-serif;
+      resize: none;
+      margin-bottom: 15px;
+      box-sizing: border-box;
+    }
+    .feedback-modal textarea:focus {
+      outline: none;
+      border-color: #ff9800;
+    }
+    .feedback-modal button {
+      width: 100%;
+      padding: 14px;
+      background: #ff9800;
+      color: #111;
+      border: none;
+      border-radius: 12px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s;
+      text-transform: uppercase;
+      font-size: 1.1rem;
+    }
+    .feedback-modal button:hover {
+      background: #ffa733;
+    }
+    .importance-scale {
+      display: flex;
+      gap: 18px;
+      margin-bottom: 18px;
+      justify-content: space-between;
+      align-items: flex-end;
+      padding: 0 4px;
+    }
+    .importance-box {
+      flex: 1;
+      background: rgba(255,255,255,0.10);
+      border-radius: 14px;
+      text-align: center;
+      padding: 18px 0 12px 0;
+      font-size: 1.3rem;
+      color: #ffa733;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: 
+        background 0.2s, 
+        border 0.2s, 
+        color 0.2s, 
+        box-shadow 0.2s;
+      user-select: none;
+      font-weight: bold;
+      letter-spacing: 1px;
+      box-shadow: 0 2px 10px 0 rgba(255,167,51,0.08);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 48px;
+      position: relative;
+    }
+    .importance-box.selected {
+      background: rgba(255,167,51,0.25);
+      color: #222;
+      border: 2px solid #ffa733;
+      box-shadow: 0 4px 16px 0 rgba(255,167,51,0.18);
+    }
+    .importance-box:hover {
+      background: rgba(255,167,51,0.18);
+      color: #fff;
+      box-shadow: 0 6px 18px 0 rgba(255,167,51,0.22);
+    }
+    .importance-box.error {
+      border: 2px solid #ff3b3b !important;
+      background: rgba(255,59,59,0.08);
+      color: #ff3b3b !important;
+    }
+    .importance-help {
+      position: relative;
+      display: inline-block;
+      margin-left: 8px;
+    }
+    .importance-q {
+      display: inline-block;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #ffa733;
+      color: #222;
+      font-weight: bold;
+      text-align: center;
+      line-height: 24px;
+      font-size: 1.15rem;
+      cursor: pointer;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+      transition: background 0.2s, box-shadow 0.2s;
+      border: 2px solid #fff3;
+    }
+    .importance-help:hover .importance-q,
+    .importance-q:focus {
+      background: rgba(255,167,51,0.7);
+      box-shadow: 0 2px 12px 0 rgba(255,167,51,0.25);
+    }
+    .importance-tooltip {
+      display: none;
+      position: absolute;
+      top: 32px;
+      right: 0;
+      background: rgba(34,34,34,0.82);
+      color: #ffa733;
+      border-radius: 12px;
+      padding: 12px 18px;
+      font-size: 1rem;
+      white-space: pre-line;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.25);
+      z-index: 10;
+      min-width: 220px;
+      pointer-events: none;
+      backdrop-filter: blur(6px);
+      border: 1.5px solid rgba(255,167,51,0.18);
+      opacity: 0.98;
+    }
+    .importance-help:hover .importance-tooltip,
+    .importance-q:focus + .importance-tooltip {
+      display: block;
+    }
+    .feedback-input {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 12px;
+      padding: 12px;
+      color: #fff;
+      font-family: sans-serif;
+      resize: none;
+      margin-bottom: 15px;
+      box-sizing: border-box;
+      font-size: 1rem;
+      transition: border 0.2s;
+      line-height: 1.3;
+    }
+    .feedback-name {
+      height: 48px;
+      min-height: 48px;
+      max-height: 48px;
+      overflow: hidden;
+    }
+    .feedback-text {
+      min-height: 120px;
+      max-height: 220px;
+      height: 120px;
+      resize: vertical;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: #ffa733 rgba(255,255,255,0.1);
+      background: rgba(255, 255, 255, 0.1);
+    }
+    .feedback-text::-webkit-scrollbar {
+      width: 8px;
+      background: rgba(255,255,255,0.1);
+    }
+    .feedback-text::-webkit-scrollbar-thumb {
+      background: #ffa733;
+      border-radius: 6px;
+    }
+    .feedback-text::-webkit-scrollbar-track {
+      background: rgba(255,255,255,0.1);
+    }
+    .feedback-input:focus {
+      outline: none;
+      border-color: #ff9800;
+    }
+    .feedback-input.error {
+      border: 2px solid #ff3b3b !important;
+      background: rgba(255,59,59,0.08);
+    }
+    .feedback-type-container {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 15px;
+      justify-content: center;
+    }
+    .feedback-type-box {
+      flex: 1;
+      text-align: center;
+      padding: 12px 0;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.13);
+      backdrop-filter: blur(8px);
+      color: #ffa733;
+      font-weight: bold;
+      font-size: 1.05rem;
+      cursor: pointer;
+      border: 2px solid transparent;
+      box-shadow: 0 2px 10px 0 rgba(255,167,51,0.08);
+      transition: 
+        background 0.2s, 
+        color 0.2s, 
+        border 0.2s, 
+        box-shadow 0.2s;
+      user-select: none;
+    }
+    .feedback-type-box.selected {
+      background: rgba(255,167,51,0.22);
+      color: #222;
+      border: 2px solid #ffa733;
+      box-shadow: 0 4px 16px 0 rgba(255,167,51,0.18);
+    }
+    .feedback-type-box:hover {
+      background: rgba(255,167,51,0.18);
+      color: #fff;
+      box-shadow: 0 6px 18px 0 rgba(255,167,51,0.22);
+    }
+    .feedback-type-box.error {
+      border: 2px solid #ff3b3b !important;
+      background: rgba(255,59,59,0.08);
+      color: #ff3b3b !important;
+    }
+
+    /* Regex-Zeile Hover: Nur Hintergrund und Schatten, keine Outline, keine Größenänderung */
+    #regexDisplay.display-box:hover {
+      background: rgba(255,167,51,0.18);
+      color: #fff;
+      border: none;
+      box-shadow: 0 6px 18px 0 rgba(255,167,51,0.22);
+      transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+      /* Kein border, kein transform, keine Größenänderung */
+    }
+
+    /* Entferne Hover-Highlight und Cursor für Word: Zeile */
+    #wordDisplay.display-box:hover {
+      background: rgba(255,255,255,0.08); /* identisch zum Standard, kein Effekt */
+      cursor: default;
+    }
+
+    /* Kein Pointer-Cursor für Word: Zeile */
+    #wordDisplay.display-box {
+      cursor: default;
+    }
+
+    /* Text-Animation für Word: wie bei Regex: */
+    #wordDisplay .content {
+      transition: opacity 0.25s, transform 0.25s;
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    #wordDisplay.visible .content {
+      opacity: 1;
+      transform: translateY(0);
+    }
   </style>
 </head>
 <body>
@@ -364,7 +677,7 @@
   <div class="grid" id="grid"></div>
   <div class="controls">
     <div class="left-controls">
-      <button id="clearBtn">CLEAR ALL</button>
+      <button id="clearBtn">CLEAR All</button>
       <button id="clearLastBtn">CLEAR LAST</button>
     </div>
     <button id="regexTestBtn">TEST REGEX</button>
@@ -393,6 +706,48 @@
     </div>
     <div id="suggestionList" class="list"></div>
   </div>
+  
+  <!-- Feedback Chat Button -->
+  <div class="feedback-chat" id="feedbackChat">
+    <svg viewBox="0 0 24 24">
+      <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
+    </svg>
+  </div>
+  
+  <!-- Feedback Modal -->
+  <div class="feedback-modal" id="feedbackModal">
+    <h3>Send Feedback</h3>
+    <textarea id="feedbackName" placeholder="Your name (optional)" class="feedback-input feedback-name" rows="1"></textarea>
+    
+    <div class="feedback-type-container">
+      <div class="feedback-type-box" data-type="improvement">Improvement / Bug</div>
+      <div class="feedback-type-box" data-type="feature">Suggest a Feature</div>
+    </div>
+    
+    <textarea id="feedbackText" placeholder="Write what you think..." class="feedback-input feedback-text" rows="5"></textarea>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+      <label style="color:#ffa733;font-weight:bold;margin:0;">How important is this change?</label>
+      <div class="importance-help" style="position:relative;display:inline-block;margin-left:8px;">
+        <span class="importance-q">?</span>
+        <span class="importance-tooltip">
+          1 = LOW IMPORTANCE<br>
+          2 = LOW/MID IMPORTANCE<br>
+          3 = MID IMPORTANCE<br>
+          4 = HIGH/MID IMPORTANCE<br>
+          5 = HIGH IMPORTANCE
+        </span>
+      </div>
+    </div>
+    <div id="importanceScale" class="importance-scale">
+      <div class="importance-box" data-value="1" title="1">1</div>
+      <div class="importance-box" data-value="2" title="2">2</div>
+      <div class="importance-box" data-value="3" title="3">3</div>
+      <div class="importance-box" data-value="4" title="4">4</div>
+      <div class="importance-box" data-value="5" title="5">5</div>
+    </div>
+    <button id="sendFeedbackBtn">SEND</button>
+  </div>
+  
   <div class="watermark">© 2025 – rewins / All Rights Reserved</div>
 
   <script type="module">
@@ -412,14 +767,14 @@
     const db = getFirestore(app);
 
     const regexMap = {
-      a: "[aA@4ÀÂÁÃÄÅÆĂĄ#*]", b: "[bB8Бβ#*]", c: "[cC(ÇĆĈĊČ#*]",
-      d: "[dDÐĎĐ#*]", e: "[eE3ÈÉÊËĒĔĖĘĚ#*]", f: "[fFƑ#*]",
+      a: "[aA@4ÀÂÁÃÄÅÆĂĄ#*]", b: "[bB8Бβ#*]", c: "[cC(ÇĆĈĊ#*]",
+      d: "[dDÐĎĐ#*]", e: "[eE3ÈÉÊËĒĔĖĘĚ#*]", f: "[fFƒ#*]",
       g: "[gG6ĜĞĠĢ9#*]", h: "[hH#*]", i: "[iI1!|ÌÍÎÏĨĪĮİ#*]",
       j: "[jJ#*]", k: "[kKĶ#*]", l: "[lL1!|Ļ#*]",
-      m: "[mM#*]", n: "[nNÑŃŅŇ#*]", o: "[oO0ÒÓÔÕÖØŌŎŐƠ#*]",
+      m: "[mM#*]", n: "[nNÑŃŅŇ#*]", o: "[oO0ÒÓÔÕÖØŌŎŐŒ#*]",
       p: "[pPÞ#*]", q: "[qQ9#*]", r: "[rRŔŖŘ#*]",
       s: "[sS5$ŚŜŞŠ#*]", t: "[tT7ŢŤ#*]", u: "[uUÙÚÛÜŨŪŬŮŰŲ#*]",
-      v: "[vV\\/#!*]", w: "[wWvvŴ#*]", x: "[xX%×Ÿ#*]",
+      v: "[vV\\/#!*]", w: "[wWvvŴ#*]", x: "[xX%×Ẋ#*]",
       y: "[yYÝŶ#*]", z: "[zZ2ŹŻŽ#*]",
       Ä: "[ÄÀÂA@4aA#*]", Ö: "[ÖÄÀÂoO#*]", Ü: "[ÜÄÀÂuU#*]", ß: "[ßβ5$sS#*]"
     };
@@ -435,6 +790,12 @@
     const fossabotMenu = document.getElementById("fossabotMenu");
     const fossabotModeLabel = document.getElementById("fossabotModeLabel");
     const arrow = fossabotToggle.querySelector(".arrow");
+    const feedbackChat = document.getElementById("feedbackChat");
+    const feedbackModal = document.getElementById("feedbackModal");
+    const feedbackName = document.getElementById("feedbackName");
+    const feedbackText = document.getElementById("feedbackText");
+    const importanceScale = document.getElementById("importanceScale");
+    const sendFeedbackBtn = document.getElementById("sendFeedbackBtn");
 
     let currentWord = "";
     let regexParts = [];
@@ -442,8 +803,10 @@
     let chattyMode = false;
     let fossabotMode = "standard";
     let approvedCache = [];
+    let selectedImportance = null; // No default selection
+    let selectedFeedbackType = null;
 
-    // 🔥 zentrale Prefix-Logik
+    // Zentrale Prefix-Logik
     function getPrefix() {
       let prefix = "";
       if (chattyMode) prefix = "config:any regi:";
@@ -454,6 +817,59 @@
 
     function updateDisplay() {
       const currentRegex = regexParts.join("");
+      const regexBox = document.getElementById("regexDisplay");
+      const regexContentSpan = document.getElementById("regexContent");
+      const wordBox = document.getElementById("wordDisplay");
+      const wordContentSpan = document.getElementById("wordContent");
+
+      // Build prefix and regex
+      let prefix = "";
+      if (chattyMode) prefix = "config:any regi:";
+      if (fossabotMode === "keyword" || fossabotMode === "blocked") prefix = "regex:" + prefix;
+      if (fossabotMode === "negative") prefix = "regex:negative:" + prefix;
+
+      // Only show if something is entered
+      let show = currentRegex.length > 0;
+      let regexString = show ? (prefix + `(?i)(_|\\b)${currentRegex}(_|\\b)`) : "";
+
+      // Animation: show/hide with fade/slide for Regex:
+      if (show) {
+        if (!regexBox.classList.contains("visible")) {
+          regexBox.classList.add("visible");
+          regexContentSpan.style.opacity = "0";
+          regexContentSpan.style.transform = "translateY(10px)";
+          setTimeout(() => {
+            regexContentSpan.style.transition = "opacity 0.25s, transform 0.25s";
+            regexContentSpan.style.opacity = "1";
+            regexContentSpan.style.transform = "translateY(0)";
+          }, 10);
+        }
+      } else {
+        regexBox.classList.remove("visible");
+        regexContentSpan.style.transition = "none";
+        regexContentSpan.style.opacity = "0";
+        regexContentSpan.style.transform = "translateY(10px)";
+      }
+
+      // Animation: show/hide with fade/slide for Word:
+      if (currentWord.length > 0) {
+        if (!wordBox.classList.contains("visible")) {
+          wordBox.classList.add("visible");
+          wordContentSpan.style.opacity = "0";
+          wordContentSpan.style.transform = "translateY(10px)";
+          setTimeout(() => {
+            wordContentSpan.style.transition = "opacity 0.25s, transform 0.25s";
+            wordContentSpan.style.opacity = "1";
+            wordContentSpan.style.transform = "translateY(0)";
+          }, 10);
+        }
+      } else {
+        wordBox.classList.remove("visible");
+        wordContentSpan.style.transition = "none";
+        wordContentSpan.style.opacity = "0";
+        wordContentSpan.style.transform = "translateY(10px)";
+      }
+
       wordContent.textContent = currentWord;
       regexContent.textContent = getPrefix() + `(?i)(_|\\b)${currentRegex}(_|\\b)`;
 
@@ -465,7 +881,6 @@
         fossabotModeLabel.textContent = fossabotMode;
       }
 
-      // 🔥 Suggestions neu rendern mit aktuellem Prefix
       renderSuggestions(approvedCache, suggestionSearch.value);
     }
 
@@ -633,6 +1048,118 @@
     regexContent.addEventListener('wheel', (e) => {
       e.preventDefault();
       regexContent.scrollLeft += e.deltaY;
+    });
+
+    // Feedback Funktionen
+    feedbackChat.addEventListener('click', () => {
+      feedbackModal.classList.toggle('open');
+    });
+
+    // Highlight selected importance
+    function updateImportanceUI(val) {
+      importanceScale.querySelectorAll('.importance-box').forEach(box => {
+        box.classList.toggle('selected', Number(box.dataset.value) === val);
+        box.classList.remove('error');
+      });
+    }
+    updateImportanceUI(selectedImportance);
+
+    importanceScale.querySelectorAll('.importance-box').forEach(box => {
+      box.addEventListener('click', () => {
+        selectedImportance = Number(box.dataset.value);
+        updateImportanceUI(selectedImportance);
+      });
+    });
+
+    const feedbackTypeBoxes = document.querySelectorAll('.feedback-type-box');
+
+    // Feedback type selection logic
+    feedbackTypeBoxes.forEach(box => {
+      box.addEventListener('click', () => {
+        selectedFeedbackType = box.dataset.type;
+        feedbackTypeBoxes.forEach(b => b.classList.remove('selected', 'error'));
+        box.classList.add('selected');
+      });
+    });
+
+    // Remove error highlight on selection
+    feedbackTypeBoxes.forEach(box => {
+      box.addEventListener('click', () => {
+        feedbackTypeBoxes.forEach(b => b.classList.remove('error'));
+      });
+    });
+
+    // Remove red outline on input in feedbackText
+    feedbackText.addEventListener('input', () => {
+      if (feedbackText.classList.contains('error') && feedbackText.value.trim().length > 0) {
+        feedbackText.classList.remove('error');
+      }
+    });
+
+    sendFeedbackBtn.addEventListener('click', async () => {
+      // Remove previous errors
+      feedbackName.classList.remove('error');
+      feedbackText.classList.remove('error');
+      importanceScale.querySelectorAll('.importance-box').forEach(box => box.classList.remove('error'));
+      feedbackTypeBoxes.forEach(box => box.classList.remove('error'));
+
+      let hasError = false;
+
+      if (!selectedFeedbackType) {
+        feedbackTypeBoxes.forEach(box => box.classList.add('error'));
+        hasError = true;
+      }
+      if (!feedbackText.value.trim()) {
+        feedbackText.classList.add('error');
+        hasError = true;
+      }
+      if (selectedImportance === null) {
+        importanceScale.querySelectorAll('.importance-box').forEach(box => box.classList.add('error'));
+        hasError = true;
+      }
+
+      if (hasError) return;
+
+      const message = feedbackText.value.trim();
+      const name = feedbackName.value.trim();
+      const importance = selectedImportance;
+      const feedbackType = selectedFeedbackType;
+
+      try {
+        await addDoc(collection(db, "website_feedback"), {
+          name: name,
+          message: message,
+          importance: importance,
+          feedbackType: feedbackType,
+          createdAt: serverTimestamp()
+        });
+
+        feedbackText.value = "";
+        feedbackName.value = "";
+        selectedImportance = null;
+        selectedFeedbackType = null;
+        feedbackTypeBoxes.forEach(b => b.classList.remove('selected', 'error'));
+        updateImportanceUI(selectedImportance);
+        feedbackModal.classList.remove('open');
+        sendFeedbackBtn.textContent = "SENT";
+        setTimeout(() => {
+          sendFeedbackBtn.textContent = "SEND";
+        }, 2000);
+      } catch (err) {
+        sendFeedbackBtn.textContent = "FAILURE!";
+        setTimeout(() => {
+          sendFeedbackBtn.textContent = "SEND";
+        }, 2000);
+      }
+    });
+
+    // Schließe Modal, wenn außerhalb geklickt wird
+    document.addEventListener('click', (e) => {
+      if (feedbackModal.classList.contains('open') && 
+          !feedbackModal.contains(e.target) && 
+          !feedbackChat.contains(e.target)) {
+        feedbackModal.classList.remove('open');
+      }
     });
 
     updateDisplay();
